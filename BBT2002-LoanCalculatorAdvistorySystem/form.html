@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        function calculateMthlyRepayment() {
+            var loan = $("#loan").val();
+            var interest = $("#interest").val() / 100;
+            var yrofloan = $("#yrofloan").val();
+            var mthterm = $("#mthterm").val();
+            var basis = getRadioValue("basis");
+            var income = $("#income").val();
+            var extramonthly = $("#extramonthly").val();
+            var expense = $("#expense").val();
+
+            if (validated(loan, interest, basis, yrofloan, mthterm, income, expense, extramonthly)) {
+                if (basis == "annually") {
+                    var mthlyrepayment = round(((interest / 12 * loan) / (1 - (Math.pow((1 + interest / 12), (-yrofloan * 12))))), 2); //annuallyinterest
+                } else {
+                    var mthlyrepayment = round(((interest * loan) / (1 - (Math.pow((1 + interest), (-yrofloan * 12))))), 2); //monthlyinterest
+                }
+
+                if ((mthlyrepayment / (income - expense)) > 0.43) {
+                    var moretoqualify = round((mthlyrepayment / 0.43) - (income - expense), 2);
+                    var advice = "You should not take up this loan." + "<br>" + "You need an additional $" + moretoqualify + " more per month to comfortable take up the loan.";
+                } else {
+                    var advice = "You may take up this loan";
+                }
+
+                if (extramonthly > 0) {
+                    var xtramonthly = round(parseFloat(mthlyrepayment) + parseFloat(extramonthly), 2);
+                } else {
+                    var xtramonthly = 0;
+                }
+
+                localStorage.setItem("extramonthly", extramonthly);
+                localStorage.setItem("xtramonthly", xtramonthly);
+                localStorage.setItem("mthlyrepayment", mthlyrepayment);
+                localStorage.setItem("advice", advice);
+                localStorage.setItem("yrofloan", $("#yrofloan").val());
+                localStorage.setItem("loan", $("#loan").val());
+                localStorage.setItem("interest", $("#interest").val());
+                localStorage.setItem("basis", basis);
+                document.loanform.submit();
+
+            }
+        }
+
+        function validated(loan, interest, basis, yrofloan, mthterm, income, expense, extramonthly) {
+            if (loan == "") { //validate loan empty
+                alert("Loan Amount is required");
+                $("#loan").focus();
+                return false;
+            } else if (isNaN(loan)) { //validate loan is number
+                alert("Loan must be a number");
+                $("#loan").focus();
+                return false;
+            } else if (loan <= 0) { //validate loan > 0
+                alert("Loan Amount must be more than 0");
+                $("#loan").focus();
+                return false;
+            } else if (interest == "") { //validate interest empty
+                alert("Interest rate is required");
+                $("#interest").focus();
+                return false;
+            } else if (isNaN(interest)) { //validate interest is number
+                alert("Interest must be a number");
+                $("#interest").focus();
+                return false;
+            } else if (interest <= 0) { //validate interest > 0 
+                alert("Interest rate must be more than 0");
+                $("#interest").focus();
+                return false;
+            } else if (!$('input[name=basis]:checked').val()) { //validate basis checked
+                alert("Please select the basis of interest");
+                return false;
+            } else if (yrofloan == "") { //validate yrofloan empty
+                alert("Years of loan is required");
+                $("#yrofloan").focus();
+                return false;
+            } else if (isNaN(yrofloan)) { //validate yrofloan number
+                alert("Year of Loan must be a number");
+                $("#yrofloan").focus();
+                return false;
+            } else if (yrofloan <= 0) { //validate yrofloan > 0
+                alert("Year of loan must be more than 0");
+                $("#yrofloan").focus();
+                return false;
+            } else if (mthterm == "") { //validate mthterm empty
+                alert("Month Term is required");
+                $("#mthterm").focus();
+                return false;
+            } else if (isNaN(mthterm)) { //validate mthterm number
+                alert("Month Term must be a number");
+                $("#mthterm").focus();
+                return false;
+            } else if (mthterm <= 0) { //validate mthterm > 0
+                alert("Month Term must be more than 0");
+                $("#mthterm").focus();
+                return false;
+            } else if (!isInt(mthterm)) { //validate mthterm whole number
+                alert("Month Term must be a whole number");
+                $("#mthterm").focus();
+                return false;
+            } else if (income == "") { //validate income empty
+                alert("Income is required");
+                $("#income").focus();
+                return false;
+            } else if (isNaN(income)) { //validate income is number
+                alert("Income must be a number");
+                $("#income").focus();
+                return false;
+            } else if (income <= 0) { //validate income > 0
+                alert("Income must be more than 0");
+                $("#income").focus();
+                return false;
+            } else if (isNaN(expense)) { //validate expense is number
+                alert("Expense must be a number");
+                $("#expense").focus();
+                return false;
+            } else if (expense < 0) { //validate expense > 0
+                alert("Expense must be more than 0");
+                $("#expense").focus();
+                return false;
+            } else if (isNaN(extramonthly)) { //validate extramonthly is number
+                alert("Monthly Extra Payment must be a number");
+                $("#extramonthly").focus();
+                return false;
+            } else if (extramonthly < 0) { //validate extramonthly => 0
+                alert("Monthly Extra Payment must be more than 0");
+                $("#extramonthly").focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        // When the user clicks on <div>, open the popup
+        function exppopup() {
+            var popup = document.getElementById('expensePopup');
+            popup.classList.toggle('show');
+        }
+
+        function xtrapopup() {
+            var popup = document.getElementById('xtraPopup');
+            popup.classList.toggle('show');
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="content">
+        <div data-role="header">
+            <button name="home" onclick="gohome()" class="ui-btn ui-icon-home ui-btn-icon-left">Home</button>
+            <h1><b>Loan Calculator</b></h1>
+        </div>
+
+        <div data-role="main" class="ui-content">
+            <form name="loanform" id="loanform" action="result.html">
+
+                Enter your loan details. The system will calculate the monthly repayment
+
+                <div class="ui-field-contain">
+                    <fieldset>
+                        <label for="loan"> Loan Amount (in $)</label>
+                        <input type="text" name="loan" id="loan">
+
+                        <label for="interest">Interest (in %)</label>
+                        <input type="text" name="interest" id="interest">
+
+                        <fieldset data-role="controlgroup" data-type="horizontal">
+                            <legend> Basis of interest</legend>
+                            <label for="monthly">Monthly</label>
+                            <input type="radio" name="basis" id="monthly" value="monthly" checked="checked">
+
+                            <label for="annually">Annually</label>
+                            <input type="radio" name="basis" id="annually" value="annually">
+                        </fieldset>
+
+                        <p>
+                            <label for="yrofloan">Loan terms in years</label>
+                            <input type="text" name="yrofloan" id="yrofloan"> OR
+
+                            <label for="mthterm">Terms in months</label>
+                            <input type="text" name="mthterm" id="mthterm">
+
+                            <script>
+                                //reference to: http://stackoverflow.com/questions/23288088/jquery-update-input-value-based-on-another-form-input
+                                $("#mthterm").on("input", function() {
+                                    document.getElementById("yrofloan").value = round($("#mthterm").val() / 12, 4);
+                                });
+
+                                $("#yrofloan").on("input", function() {
+                                    document.getElementById("mthterm").value = round($("#yrofloan").val() * 12, 4);
+                                });
+                            </script>
+                        </p>
+
+                        <label for="income">Monthly Income</label>
+                        <input type="text" name="income" id="income">
+
+                        <label for="expense">Monthly Expense (Optional)
+                            <div class="popup" onclick="exppopup()">
+                                <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-info ui-btn-icon-notext">Info for expenses</a>
+                                <span class="popuptext" id="expensePopup">Input your expenses for a more acccurate advise on taking up the loan.</span>
+                            </div>
+                        </label>
+                        <input type="text" name="expense" id="expense" value="0">
+
+                        <label for="extramonthly">Proposed extra monthly payment (in $) (Optional)
+                            <div class="popup" onclick="xtrapopup()">
+                                <a href="#" class="ui-btn ui-shadow ui-corner-all ui-icon-info ui-btn-icon-notext">Info for extra monthly payment</a>
+                                <span class="popuptext" id="xtraPopup">By making additional monthly payment towards the principal amount, you can realize savings in interest payments and term of loan.</span>
+                            </div>
+                        </label>
+                        <input type="text" name="extramonthly" id="extramonthly" value="0">
+
+                        <input type="button" value="Calculate" onclick="calculateMthlyRepayment()">
+
+                        <input type="reset" value="Reset">
+
+                    </fieldset>
+                </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="common.js"></script>
+
+    <script>
+        var totalintA = 0,
+            totalintB = 0,
+            totalinterest = 0;
+        var totalmthA = 0,
+            totalmthB = 0;
+
+        function loop() {
+            var loanbalance = localStorage.getItem("loan");
+            var mthlyrepayment = localStorage.getItem("mthlyrepayment");
+            var intrate = localStorage.getItem("interest") / 100;
+            var year = localStorage.getItem("yrofloan");
+            var basis = localStorage.getItem("basis");
+
+            var yr = 0;
+
+            $("#tablebody").find("tr").remove();
+
+            while (yr < year) {
+                var mth = 0;
+                yr++;
+
+                if (interest < "0" || loanpaid < "0" || loanbalance < "0" || loanbalance < "1") {
+                    break; //stop loop if interest/loanpaid < 0 OR loanbalance < 1
+                }
+                while (mth < 12) {
+                    mth++;
+
+                    if (basis == "annually") {
+                        var interest = loanbalance * intrate / 12;
+                    } else {
+                        var interest = loanbalance * intrate;
+                    }
+
+                    var loanpaid = mthlyrepayment - interest;
+                    var loanbalance = loanbalance - loanpaid;
+
+                    totalintA = parseFloat(totalintA) + parseFloat(interest); //calculate total interest
+
+                    $("#tablebody").append("<tr><td>" + yr.toString() + "</td><td>" + mth.toString() + "</td><td>" + round(mthlyrepayment, 2).toString() + "</td><td>" + round(interest, 2).toString() + "</td><td>" + round(loanpaid, 2).toString() + "</td><td>" + round(loanbalance, 2).toString() + "</td></tr>");
+
+                    if (interest < "0" || loanpaid < "0" || loanbalance < "0" || loanbalance < "1") {
+                        break; //stop loop if interest/loanpaid < 0 OR loanbalance < 1
+                    }
+                }
+
+            }
+            var lastmonth = mth;
+            var lastyear = yr;
+
+            totalmthA = lastmonth + ((lastyear - 1) * 12);
+        }
+
+        function loopxtra() {
+            var loanbalance = localStorage.getItem("loan");
+            var mthlyrepayment = localStorage.getItem("mthlyrepayment");
+            var intrate = localStorage.getItem("interest") / 100;
+            var year = localStorage.getItem("yrofloan");
+            var basis = localStorage.getItem("basis");
+            var xtramonthly = localStorage.getItem("xtramonthly");
+
+            var yr = 0;
+
+            $("#tablebody").find("tr").remove();
+
+            while (yr < year) {
+                var mth = 0;
+                yr++;
+
+                if (interest < "0" || loanpaid < "0" || loanbalance < "0" || loanbalance < "1") {
+                    break; //stop loop if interest/loanpaid < 0 OR loanbalance < 1
+                }
+
+                while (mth < 12) {
+                    mth++;
+
+                    if (basis == "annually") {
+                        var interest = loanbalance * intrate / 12;
+                    } else {
+                        var interest = loanbalance * intrate;
+                    }
+
+                    var loanpaid = xtramonthly - interest;
+                    var loanbalance = loanbalance - loanpaid;
+
+                    totalintB = parseFloat(totalintB) + parseFloat(interest); //calculate total interest
+
+                    $("#tablebody").append("<tr><td>" + yr.toString() + "</td><td>" + mth.toString() + "</td><td>" + round(xtramonthly, 2).toString() + "</td><td>" + round(interest, 2).toString() + "</td><td>" + round(loanpaid, 2).toString() + "</td><td>" + round(loanbalance, 2).toString() + "</td></tr>");
+
+                    if (interest < "0" || loanpaid < "0" || loanbalance < "0" || loanbalance < "1") {
+                        break; //stop loop if interest/loanpaid < 0 OR loanbalance < 1
+                    }
+
+                }
+            }
+
+            var lastmonth = mth;
+            var lastyear = yr;
+
+            totalmthB = lastmonth + ((lastyear - 1) * 12);
+        }
+
+        function benefit() {
+            loop();
+            loopxtra();
+
+            var lessint = round((totalintA - totalintB), 0);
+
+            $("#benefit").empty();
+            $("#benefit").append("By paying an extra $ " + localStorage.getItem("extramonthly") + " per month, you could save around $ " + lessint + " in interest ( $" + round(totalintA, 0) + " VS $" + round(totalintB, 0) + "). <br> You could also clear your debt " + (totalmthA - totalmthB) + " month(s) quicker. (" + totalmthA + " VS " + totalmthB + ")");
+        }
+    </script>
+</head>
+
+<body onload="xtrabtn()">
+    <script>
+        function xtrabtn() {
+            var xtramonthly = localStorage.getItem("xtramonthly");
+
+            //draw extra button if user input additional payment
+            if (xtramonthly > 0) {
+                $("#xtrabtn").append('<a href="#dialog" class="ui-btn ui-corner-all" onclick="loopxtra()">Repayment Schedule (with added payment)</a>');
+            }
+
+            if (xtramonthly > 0) {
+                $("#xtrabtn").append('<a href="#dialogxtra" class="ui-btn ui-corner-all" onclick="benefit()">Show Benefit of Extra Payment</a>');
+            }
+
+        }
+    </script>
+    <div class="app">
+        <div data-role="page" id="mainpage">
+            <div data-role="header">
+                <button name="home" onclick="gohome()" class="ui-btn ui-icon-home ui-btn-icon-left">Home</button>
+                <h1>OTBS Fin-Cal</h1>
+            </div>
+
+            <div data-role="main" class="ui-content">
+                <h3>Your Results</h3>
+                <p>Monthly Repayment:
+                    <script>
+                        document.write("$" + localStorage.getItem("mthlyrepayment"));
+                    </script>
+                </p>
+                <p>Advice:
+                    <script>
+                        document.write(localStorage.getItem("advice"));
+                    </script>
+
+                </p>
+                <a href="#dialog" class="ui-btn ui-corner-all" onclick="loop()">Your Repayment Schedule</a>
+
+                <div id="xtrabtn"></div>
+
+            </div>
+        </div>
+
+        <div data-role="page" data-dialog="true" id="dialog">
+            <div data-role="header">
+                <h1>Schedule</h1>
+            </div>
+
+            <table data-role="table" data-mode="columntoggle" class="ui-responsive" id="table">
+                <thead>
+                    <tr>
+                        <th data-priority="1">Year</th>
+                        <th data-priority="1">Month</th>
+                        <th data-priority="3">Repayment</th>
+                        <th data-priority="1">Interest</th>
+                        <th data-priority="2">Loan Paid</th>
+                        <th data-priority="1">Loan Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="tablebody">
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <div data-role="page" data-dialog="true" id="dialogxtra">
+            <div data-role="header">
+                <h1>Benefit</h1>
+            </div>
+
+            <div id="benefit"></div>
+
+        </div>
+
+    </div>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+</body>
+
+</html>

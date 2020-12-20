@@ -1,0 +1,219 @@
+*{ 
+	padding: 0px;
+	margin: 0px;
+	
+}
+html,body {
+	background-image: url("images/pawbackground.png") ;
+	font-family: Helvetica,Arial,sans-serif;
+	height:100%;
+}
+
+body{
+	width: 1000px;
+	margin:auto;
+}
+
+#container {
+	background-color: #f3f4f1;
+	min-height: 95.5%;
+}
+
+#header {
+    background-color:#e8d0a9;
+}
+
+
+#nav {
+	background-color:#cf9c4a;
+	border-top-style: solid;
+	border-top-width: 1px;
+    border-bottom-style: solid;
+	border-bottom-width: 1px;
+	list-style: none;
+	overflow: hidden;
+}
+#nav li{
+	float: left;
+}
+
+#nav li  a{
+	text-decoration: none;
+	color: black;
+	text-align: center;
+	padding: 8px 15px;
+	display: block;
+}
+#nav li a:hover {
+    background-color:#a1742b;
+}
+
+
+#content {
+	color: black ;
+	text-align:center;
+	padding-top: 20px ;
+	padding-bottom:20px;
+	font-size: 18px;
+	background-color: #f3f4f1;
+}
+
+#content.nopadding {
+	padding: 0px;
+
+}
+
+
+#content.alignleft {
+	text-align: left;
+	padding-left: 30px;
+	padding-bottom: 20px;
+}
+
+.aboutus_img {
+	padding-left: 80px;
+	background-color: white;
+}
+
+
+.contacttable{
+	padding: 20px;
+	padding-top: 0px;
+	background: #f3f4f1;
+	width: 500px;
+}
+.contacttable td {
+	padding-left: 10px;
+    height: 53px; 
+	background-color: #f3f4f1;
+	text-align: left;
+}
+.contacttable th {
+	text-align:right;
+}
+.contacttable #submit{
+	width: 10em;
+	height: 2em;
+}
+
+
+#content .rightcolumn {
+	float: right;
+	padding-right: 100px;
+	text-align: left;
+	padding-top: 20px;
+
+}
+
+.errormsg {
+	font-size: 18px;
+	color: red;
+	text-align: initial;
+	padding-left: 350px;
+}
+
+
+.regformborder {
+	background-color: white;
+	width: 60%;
+	margin: auto;
+	border-radius: 15px;
+	padding: 20px;
+}
+option.hideoption {
+	display: none;
+}
+
+
+.loginformborder {
+	background-color: white;
+	width: 40%;
+	margin: auto;
+	border-radius: 15px;
+	padding: 20px;
+}
+
+.alignright {
+	text-align: right;
+    padding: 10px;
+	padding-right: 20px;
+}
+
+
+#footer {
+	background-color:#8f6048 ;
+	text-align:center ;
+    color:white;
+   	padding:5px;
+   	font-family: fantasy;
+    font-size: 15px;
+	clear:both;
+}
+
+
+.intropagetable{
+	padding: 20px;
+	padding-top: 5px;
+	background: white;
+}
+
+
+.intropagetable td{
+	padding: 10px;
+	width: 70%;
+	text-align: left;
+	
+
+}
+.intropagetable  th {
+	font-size: 25px;
+	text-align: left;
+	padding-top: 20px;
+	
+	text-transform: uppercase;
+}
+
+
+.indextable {
+	margin-left:auto; 
+    margin-right:auto;
+	padding: 20px;
+	border-radius: 20px;
+	background: white;
+}
+.indextable td {
+	padding: 10px;
+	width: 160px;
+    height: 50x; 
+}
+.indextable th {
+	font-size: 20px;
+	text-align: left;
+	text-decoration:underline;	
+}
+
+
+#itemdetailpage {
+	text-align: left;
+	padding-top: 30px;
+	padding-left: 80px;
+	padding-right: 150px;
+
+}
+
+#itemdetailpage input {
+
+	font-weight: bold;
+	font-size: 19px;
+	border: 0px;
+}
+#itemdetailpage textarea {
+	resize: vertical;
+	font-family: Helvetica,Arial,sans-serif;
+	font-size: 17px;
+}
+
+
+
+
+

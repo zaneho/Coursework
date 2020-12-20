@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>FriendsZone</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1,maximum-scale=1, minimum-scale=1, width=device-width">
+            <script type="text/javascript" src="cordova.js"></script>
+            <script type="text/javascript" src="js/index.js"></script>
+            <link rel="stylesheet" type="text/css" href="css/index.css">
+            <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+            <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+            <script src="js/jquery-1.11.3.min.js"></script>
+            <script src="js/jquery.mobile-1.4.5.min.js"></script>
+            <script src="js/jquery.ui.datepicker.js"></script>
+            <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+            <script src="common.js"></script>
+            <script>
+            
+            //executes when the user presses "Update Location"
+            function savenewlocation() {
+            	//prepare to call savenewlocation.php
+                var xmlhttp = new XMLHttpRequest();
+            	
+            	//forms the URL, eg
+            	//http://1505874f.projectsbit.org/friendszone/savenewlocation.php?userid=jimmy&location=Bedok
+                var url = serverURL() + "/savenewlocation.php";
+                url += "?userid=" + localStorage.getItem("userid") +
+                    "&location=" + $("#location").val();
+                
+                //what does the server say?
+                xmlhttp.onreadystatechange = function() {
+                    //server returns 4 and 200, success
+                	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        //executes saveLocationResult()
+                		saveLocationResult(xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            }
+
+            //executes on successfil call to savenewlocatio.php
+            function saveLocationResult(response) {
+            	
+                //what does savenewlocation.php say?
+            	var arr = JSON.parse(response);
+                //says [{"result":1}]
+                if (arr[0].result == 1) {
+                    alert("Update Success");
+                    //call getcurrentlocation() again to see the new location
+                    //in the app
+                    getcurrentlocation();
+                } else { //says [{"result":0}]
+                    alert("Update Fail");
+                }
+            }
+            
+            //executes when the page loads
+            function getcurrentlocation() {
+			    //prepare to call getlocation.php
+            	var xmlhttp = new XMLHttpRequest();
+			    //forms the url e.g.
+			    //http://1505874f.projectsbit.org/friendszone/getcurrentlocation.php?userid=jimmy
+			    var url = serverURL() + "/getcurrentlocation.php";
+			    url += "?userid=" + localStorage.getItem("userid");
+			    
+			    //what does the server say?
+			    xmlhttp.onreadystatechange = function() {
+			        //server returns 4 and 200, success!
+			        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			            getLocationResult(xmlhttp.responseText);
+			        }
+			    }
+			    xmlhttp.open("GET", url, true);
+			    xmlhttp.send();
+			}
+			
+            //executes when a call to getcurrentlocation.php is success
+			function getLocationResult(response) {
+			    //what does getcurrentlocation.php say?
+			    var arr = JSON.parse(response);
+			    
+			    //says [{"currentlocation":"Temasek Polytechnic"}]
+			    if (arr[0].currentlocation.trim() != "") {
+			        //forms the hyperlik as follows :
+			        	/* <a href = "#" onclick='map'("Temasek Polytechnic")'>
+			    			Temasek Polytechnic
+			    			<a>
+			    		*/
+			    	$("#currentLocation").html("Current Location:<a href = '#' onclick = 'map(&quot;" + arr[0].currentlocation + "&quot;)' > " +
+			            arr[0].currentlocation + "</a>");
+			    } else { //says [{"currentlocation":""}]
+			    		//display "Not Available"
+			        $("#currentLocation").html("Current Location: Not Available ");
+			    }
+			}
+			
+            //executes when the user presses on the location
+			function map(location) {
+            	//open the widow to show this page
+            	//http://maps.google.com/maps?q=Temasek Polytechnic
+			    var ref = window.open('http://maps.google.com/maps?q=' + location, '_blank', 'location=no,toolbar=no');
+			    ref.show();
+			}
+			
+			//executes when the page loads
+			//page loads when the user presses [Location]
+			getcurrentlocation();
+			
+			
+			
+			</script>
+</head>
+
+<body>
+    <div data-role="page" id="mainpage">
+        <div data-role="header">
+            <h1>FriendsZone</h1>
+            <a href="#" onclick="home()" class="ui-btn ui-icon-home ui-btn-icon-left">Home</a>
+            <a href="#" onclick="logout()" data-icon="power" class="ui-btn-right">Logout</a>
+        </div>
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="locationPage()" data-icon="location">Location</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="searchPage()" data-icon="search">Search</a></li>
+            </ul>
+        </div>
+        	<div data-role="content" class="ui-content" id="locationsection">
+			    <div id="currentLocation"></div>
+			    <form name="UpdateLocationForm">
+			        <label for="location">Location</label>
+			        <input type="text" name="location" id="location" placeholder="location" value="Bedok">
+			        <input type="button" value="Update Location" onclick="savenewlocation()">
+			    </form>
+			</div>
+    </div>
+</body>
+
+</html>

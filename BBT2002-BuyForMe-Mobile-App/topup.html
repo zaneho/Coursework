@@ -1,0 +1,202 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>BuyForMe</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+		var thisYear = (new Date()).getFullYear();
+	    var maxYear = thisYear + 20;
+	    var creditcard, expirymth, expiryyr, credits;
+	    
+	    $(document).ready(function(){
+	    	while (thisYear < maxYear) {
+        		$("#expiryYr").append('<option val="' + thisYear + '">' + thisYear + '</option>');
+        		thisYear ++;
+	    	}
+    	});
+	    
+	    function topup() {
+	    	creditcardnum = $("#creditcardnum").val();
+	    	expirymth = $("#expiryMth").val();
+	    	expiryyr = $("#expiryYr").val();
+	    	credits= $('#topupvalue').val();
+	    		    	
+	    	//validate user's input first
+	        if (validate()) {
+	        	//prepare to call topup.php
+	            var xmlhttp = new XMLHttpRequest();
+	        	//form URL eg.
+	        	//http://1505874f.projectsbit.org/buyforme/topup.php
+	        	//?userid=jimmy&credits=100&creditcardno=2233333322221111&creditmth=10&credityr=2016
+	            var url = serverURL() + "/topup.php";
+
+	            url += "?userid=" + localStorage.getItem("userid") + "&credits=" + credits + "&creditcardno=" + creditcardnum + "&creditmth=" + expirymth + "&credityr=" + expiryyr;
+	            
+	            xmlhttp.onreadystatechange = function() {
+	                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                	getCreditResult(xmlhttp.responseText);
+	                }
+	            }
+	            xmlhttp.open("GET", url, true);
+	            xmlhttp.send();
+	        }
+	    }
+
+	    function getCreditResult(response) {
+	        var arr = JSON.parse(response);
+	        if (arr[0].result == 1) {
+	            alert(" Top Up Success");
+	            $("#creditcardnum").val(""); //clear the textfields
+	            window.location.reload();
+	        }
+	        else { //[{"result":0}]
+		            alert("Top Up Fail");
+	    	}
+	   }
+
+	   function validate() {
+	        var validate = true;
+	        if (creditcardnum == "") { //creditcardnum empty?
+	            alert("Credit Card Number is required.");
+	            $("#creditcardnum").focus();
+	            validate = false;
+	        
+	        } else if (isNaN(creditcardnum)) { //creditcardnum is number?
+	            alert("Credit Card Number must be a number.");
+	            $("#creditcardnum").focus();
+	            validate = false;
+
+	        } else if ($("#expiryMth option:selected").is(':disabled')) { //expirymonth selected?
+	            alert("Expiry Month is requried.");
+	            $("#expiryMth").focus();
+	            validate = false;
+	            
+	        } else if ($("#expiryYr option:selected").is(':disabled')) { //expiryyear selected?
+	            alert("Expiry Year is requried.");
+	            $("#expiryYr").focus();
+	            validate = false;
+
+	        } else if (credits == "") { //credit empty?
+	            alert("Top up value is requried.");
+	            $("#topupvalue").focus();
+	            validate = false;
+	        
+	        } else if (credits < 0) { //credit < 0?
+	            alert("Top up value must be more than 0.");
+	            $("#topupvalue").focus();
+	            validate = false;
+	        }
+	        return validate;
+	    }
+	    
+	    
+	    function getCreditDetails() {
+				
+		        //prepare to call getprofile.php web service
+				var xmlhttp = new XMLHttpRequest();
+		        
+		        //form URL
+		        //http://1505874f.projectsbit.org/buyforme/getcurrentcredits.php?userid=jimmy
+		        var url = serverURL() + "/getcurrentcredits.php";
+		        url += "?userid=" + localStorage.getItem("userid");
+		        
+		        //what does the server say?
+		        xmlhttp.onreadystatechange = function() {
+		        	//server return 4 and 200, success!
+		            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		                //execute getCreditResult()
+		            	getCredit(xmlhttp.responseText);
+		            }
+		        }
+		        xmlhttp.open("GET", url, true);
+		        xmlhttp.send();
+		    }
+		
+			//executes on successful call to getcurrentcredits.php
+		    function getCredit(response) {
+				//what does getcurrentcredit.php say?
+		        var arr = JSON.parse(response);
+				//[{"credits":"0.00"}]
+				
+				if (arr[0].credits != "") {	
+				var credits = arr[0].credits;
+					$("credit").append(credits);
+				}
+			}
+				
+		    getCreditDetails();
+		
+    </script>
+</head>
+
+<body>
+    <div data-role="page" id="mainpage">
+        <div data-role="header">
+            <h1>BuyForMe</h1>
+            <a href="#" onclick="home()" class="ui-btn ui-icon-home ui-btn-icon-left">Home</a>
+            <a href="#" onclick="logout()" data-icon="power" class="ui-btn-right">Logout</a>
+        </div>
+        
+		<div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="topupPage()" data-icon="check">Top Up</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="friends()" data-icon="heart">Friends</a></li>
+				<li><a href="#" onclick="buyForMe()" data-icon="shop">Buy For Me</a></li>
+            </ul>
+        </div> 
+        
+		<div data-role="main" class="ui-content">
+			Credits: <credit> </credit>
+			<form name="CreditForm">
+        <label for="creditcardnum">Credit Card Number</label>
+        <input type="text" name="creditcardnum" id="creditcardnum" placeholder="enter credit card number">
+        <label for="password">Expiry (mm/yyyy)</label>
+        
+        <div data-role="controlgroup" data-type = "horizontal" >
+        <select name="expiryMth" id="expiryMth">
+        	<option disabled="true">Month</option>
+              <option value="1">Jan</option>
+              <option value="2">Feb</option>
+              <option value="3">Mar</option>
+              <option value="4">Apr</option>
+              <option value="5">May</option>
+              <option value="6">Jun</option>
+              <option value="7">Jul</option>
+              <option value="8">Aug</option>
+              <option value="9">Sep</option>
+              <option value="10">Oct</option>
+              <option value="11">Nov</option>
+              <option value="12">Dec</option>
+		</select>
+        <select name="expiryYr" id="expiryYr">
+			<option disabled="true">Year</option>
+		</select>
+
+		</div>
+        <label for="topupvalue">Top Up Value</label>
+		<input type="range" name="topupvalue" id="topupvalue" value="50" min="1" max="100">
+		
+        <input type="button" value="Top Up" onclick="topup()">
+    </form>
+			
+        </div>
+		
+	</div>
+</body>
+
+</html>

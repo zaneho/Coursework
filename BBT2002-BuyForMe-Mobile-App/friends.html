@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>BuyForMe</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+
+	function searchperson() {
+		
+		var xmlhttp = new XMLHttpRequest();
+		var url = serverURL() + "/searchfriends.php";
+		url += "?userid=" + localStorage.getItem("userid") + "&search=" + $("#search").val();
+		
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+				getSearchResults(xmlhttp.responseText);
+			}
+		}
+			xmlhttp.open("GET", url, true);
+			xmlhttp.send();
+		} 
+	
+
+	function getSearchResults(response) {
+		var arr = JSON.parse(response);
+		var i;
+		if (arr.length > 0){
+			$("#mybody").find("tr").remove();
+		
+		for (i = 0; i < arr.length; i++) {
+			$("#mybody").append("<tr><td>" + arr[i].userid + "</td>" + "<td><img src='" + serverURL() + "/images/" +
+				arr[i].profileimage + "' height='50'></td><td>" +
+				"<a href='#' class='ui-btn' onClick='window.location=&quot;showusers.html?userid=" + arr[i].userid + "&quot;'>View</a></td></tr>");
+		}
+		
+		$("#FriendsTable").table("refresh");
+		
+	} else if {
+			$("#mybody").find("tr").remove();
+			$("#mybody").append("No user found");
+			$("#FriendsTable").table("refresh");
+		} 
+	
+	}
+    
+    </script>
+</head>
+
+<body>
+    <div data-role="page" id="mainpage">
+        <div data-role="header">
+            <h1>BuyForMe</h1>
+            <a href="#" onclick="home()" class="ui-btn ui-icon-home ui-btn icon-left">Home</a>
+            <a href="#" onclick="logout()" data-icon="power" class="ui-btnright">Logout</a>
+        </div>
+        
+		<div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="topup()" data-icon="check">Top Up</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="friends()" data-icon="heart">Friends</a></li>
+				<li><a href="#" onclick="buyForMe()" data-icon="shop">Buy For Me</a></li>
+            </ul>
+        </div> 
+        
+		<div data-role="content" class="ui-content" id="SearchSection">
+			<form name="SearchForm">
+				<input type="text" name="search" id="search" placeholder="Search" value="">
+				<input type="button" value="Search Persons" onclick="searchperson()">
+			</form>
+		</div>
+		
+		<div id="SearchResult" class="ui-content">
+			<table data-role="table" data-mode="reflow" class="ui-responsive" id="FriendsTable">
+				<thead>
+					<tr>
+						<th>User</th>
+						<th>Image</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<tbody id="mybody">
+				</tbody>
+			</table>
+
+		</div>
+		
+	</div>
+</body>
+
+</html>

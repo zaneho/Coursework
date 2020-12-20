@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: http://mp05.mybitmp.org https://ssl.gstatic.com  https://*.google.com  https://*.googleapis.com  https://*.gstatic.com  http://chart.apis.google.com https://*.googleusercontent.com 'unsafe-inline' 'unsafe-eval'; media-src *">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" href="css/themes/techhealth.css" />
+    <link rel="stylesheet" href="css/themes/jquery.mobile.icons.min.css" />
+    <link href="css/jquery.mobile-1.4.5.css" rel="stylesheet" />
+    <link href="css/themes/techhealth.css" type="text/css" rel="stylesheet" />
+
+    <script src="lib/jquery-1.11.2.min.js"></script>
+    <script src="lib/jquery.mobile-1.4.5.min.js"></script>
+    <script src="lib/jquery.validate.js"></script>
+    <script type="application/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpPdLeO2KzQZojpQZDYbfVRMFonF3sCFc&amp;sensor=true&amp;libraries=places"></script>
+    <script type="text/javascript" src="scripts/common.js"></script>
+    <script type="text/javascript" src="scripts/index.js"></script>
+
+    <!--gmap start-->
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+    <script src="scripts/gmaps.js"></script>
+    <link href="css/gmaps.css" rel="stylesheet" />
+    <!--gmap end-->
+    <title>TechHealth</title>
+    <style>
+        .button2 {
+            background-color: #008CBA;
+        }
+        /* Blue */
+    </style>
+</head>
+<body>
+    <div data-role="page" id="front-page" class="backgroundDiv">
+
+        <div align="center">
+            <img src="images/TechHealth logo4.jpg.png" style="padding-top:80px;padding-bottom:20px;" />
+        </div>
+
+        <div data-role="content" class="ui-content" id="loginsection">
+            <form name="LoginForm" id="LoginForm">
+                <div data-role="fieldcontainer"><label for="userid">User ID</label> <input type="text" name="txtLogin" id="txtLogin" placeholder="enter user ID" value="jimmy" required class="validate"></div>
+                <div data-role="fieldcontainer"><label for="password">Password</label> <input type="password" name="txtPassword" id="txtPassword" placeholder="enter password" value="jimmy" required class="validate"></div>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a"><input type="button" id="btnLogin" value="Login" class="btn-red"></div>
+                    <div class="ui-block-b"><input type="button" id="btnRegister" value="Register" class="btn-blue"></div>
+                </div>
+            </form>
+        </div>
+
+
+    </div>
+    <script> $(".backgroundDiv").css("background-image", "url('images/run.jpg')");</script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="scripts/platformOverrides.js"></script>
+</body>
+</html>

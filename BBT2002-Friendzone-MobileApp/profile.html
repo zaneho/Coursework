@@ -1,0 +1,355 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>FriendsZone</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+	    var oldpassword, newpassword, newpasswordagain;
+	    var description;
+	    var imgFilename = "";
+		
+	    //ececutes when user [Update Password]
+	    function savepassword() {
+	    	//what did user enter for oldpassword, newpassword and newwpasswordagain?
+	        oldpassword = $("#oldpassword").val();
+	        newpassword = $("#newpassword").val();
+	        newpasswordagain = $("#newpasswordagain").val();
+			
+	        //validate user's input first
+	        if (validate()) {
+	        	//prepare to call savenewpasswor.php
+	            var xmlhttp = new XMLHttpRequest();
+	        	//form URL eg.
+	        	//http://1505874f.projectsbit.org/friendszone/savenewpassword.php?userid=jimmy&oldpassword=hello&newpassword=hello
+	            var url = serverURL() + "/savenewpassword.php";
+
+	            url += "?userid=" + localStorage.getItem("userid") +
+	                "&oldpassword=" + oldpassword + "&newpassword=" + newpassword;
+	            
+	            //what did the server says?
+	            xmlhttp.onreadystatechange = function() {
+	            	//if says 4 and 200, success!
+	                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                    getNewPasswordResult(xmlhttp.responseText);
+	                }
+	            }
+	            xmlhttp.open("GET", url, true);
+	            xmlhttp.send();
+	        }
+	    }
+		
+	    //executes on successful call to savenewpassword.php
+	    function getNewPasswordResult(response) {
+	    	//what did savenewpassword.php say?
+	        var arr = JSON.parse(response);
+	        //[{"result":1}]
+	        if (arr[0].result == 1) {
+	            alert("Password Update Success");
+	            $("#oldpassword").val(""); //clear the textfields
+	            $("#newpassword").val("");
+	            $("#newpasswordagain").val("");
+	        } else { //NOT [{"result":1}]
+	        //why not check if server returns [{"result":-1}]
+	        //and then tell the user that his old password is not entered correctly [use elseif]
+	            alert("Password Update Fail");
+	        }
+	    }
+		
+	    //checks user's passwords inputs
+	    function validate() {
+	        var validate = true;
+	        //did the user enter an old password?
+	        if (oldpassword == "") {
+	            alert("Old Password is required.");
+	            $("#oldpassword").focus();
+	            validate = false;
+	        //did the user enter a newpassword?
+	        } else if (newpassword == "") {
+	            alert("New Password is requried.");
+	            $("#newpassword").focus();
+	            validate = false;
+	        //did the user enter a newpasswordagain?
+	        } else if (newpasswordagain == "") {
+	            alert("Re-Enter password.");
+	            $("#newpasswordagain").focus();
+	            validate = false;
+	        //did both new passwords match?
+	        } else if (newpasswordagain != newpassword) {
+	            alert("Passwords do not match.");
+	            $("#newpasswordagain").focus();
+	            validate = false;
+	        }
+	        return validate;
+	    }
+	    
+	    
+	    
+	    //executes when user presses [Update About Me]
+	    function savedescription() {
+	    	//what did the user enter?
+	        description = $("#description").val();
+			
+	    	//prepare to call savenewdescription.php
+	        var xmlhttp = new XMLHttpRequest();
+	    	//form the URL eg
+	    	//http://1505874f.projectsbit.org/friendszone/savenewdescription.php?userid=jimmy&description=hello
+	        var url = serverURL() + "/savenewdescription.php";
+	        url += "?userid=" + localStorage.getItem("userid") +
+	            "&description=" + description;
+	        
+	        //what did the server return?
+	        xmlhttp.onreadystatechange = function() {
+	        	//server says 4, 200. success!
+	            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	            	//executes getNewDescriptionResult()
+	                getNewDescriptionResult(xmlhttp.responseText);
+	            }
+	        }
+	        xmlhttp.open("GET", url, true);
+	        xmlhttp.send();
+	    }
+		
+	    //executes after successful call to savenewdescription.php
+	    function getNewDescriptionResult(response) {
+	    	//what did savenewdescription.php say?
+	        var arr = JSON.parse(response);
+	    	//[{"result":1}]
+	        if (arr[0].result == 1) {
+	            alert("Description Update Success");
+	            $("#description").val(description);
+	        } else { [{"result":0}]
+	            alert("Description Update Fail");
+	        }
+	    }
+	    
+	    //execute getImage() when user presses [Change Picture]
+	    function getImage() {
+	    	//pop the mobile device's gallery to allow the user to change an image
+	    	//execute uploadPhoto() after user chose the photo
+	        navigator.camera.getPicture(uploadPhoto,
+	            function(message) {
+	                alert('get picture failed');
+	            }, {
+	                quality: 10,
+	                destinationType: navigator.camera.DestinationType.FILE_URI,
+	                sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+	            }
+	        );
+	    }
+		
+	    //executes after the user chose the photo
+	    function uploadPhoto(imageURI) {
+	    	
+	    	//attempts to upload this photo to the server
+	        var options = new FileUploadOptions();
+	        options.fileKey = "file";
+
+	        options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+	        options.mimeType = "image/jpeg";
+	        var params = new Object();
+	        params.value1 = "test";
+	        params.value2 = "param";
+	        options.params = params;
+	        options.chunkedMode = false;
+	        options.headers = {
+	            Connection: "close"
+	        };
+	        
+	        //runs the filetransfer() plugin to upload the photo
+	        //the php web service upload.php will execute to accept the photo.
+	        //function win() runs if the upload is successful
+	        //function fail() runs if the upload fails
+	        var ft = new FileTransfer();
+	        ft.upload(imageURI, serverURL() + "/upload.php", win, fail,
+	            options);
+	    }
+		
+	    //executes on successful photo upload
+	    function win(r) {
+	    	//check if the user had a photo that he wanted to replace
+	        if (imgFilename != "") {
+	        	//yes, run deleteOldImg() to delete the old photo
+	            deleteOldImg(imgFilename);
+	        }
+	    	
+	    	//display the newly uploaded photo in the app
+	        var arr = JSON.parse(r.response);
+	        imgFilename = arr[0].result;
+	        $("#myimg").attr("src", serverURL() + "/images/" +
+	            imgFilename);
+			
+	        //executes savenewimage.php to save the name of this photo in the database
+	        var xmlhttp = new XMLHttpRequest();
+	        var url = serverURL() + "/savenewimage.php";
+	        url += "?userid=" + localStorage.getItem("userid") +
+	            "&profileimage=" + imgFilename;
+	        xmlhttp.onreadystatechange = function() {
+	            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                saveImageResult(xmlhttp.responseText);
+	            }
+	        }
+	        xmlhttp.open("GET", url, true);
+	        xmlhttp.send();
+	    }
+		
+	    //executes when there is an older profile image that the user needs to replace.
+	    function deleteOldImg(oldImg) {
+	        var xmlhttp = new XMLHttpRequest();
+	        //executes deleteimg.php to delete the previous image
+	        var url = serverURL() + "/deleteimg.php";
+
+	        url += "?imgfile=" + oldImg;
+	        xmlhttp.onreadystatechange = function() {
+	            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                deleteImgResult(xmlhttp.responseText);
+	            }
+	        }
+	        xmlhttp.open("GET", url, true);
+	        xmlhttp.send();
+	    }
+		
+	    //executes to display error message if the old image cannot be replaced
+	    function deleteImgResult(response) {
+	        var arr = JSON.parse(response);
+	        if (arr[0].result != "1") {
+	            alert("Error deleting old image.");
+	        }
+	    }
+		
+	    //executes to display a message to tell the user if the image update was successful
+	    function saveImageResult(response) {
+	        var arr = JSON.parse(response);
+	        if (arr[0].result == 1) {
+	            alert("Update Success");
+	        } else {
+	            alert("Update Fail");
+	        }
+	    }
+		
+	    //executes if the new image fails to upload
+	    function fail(error) {
+	        alert("An error has occurred: Code = " + error.code);
+	    }
+	    
+		//executes when page loads
+	    function getUserDetails() {
+			
+	        //prepare to call getprofile.php web service
+			var xmlhttp = new XMLHttpRequest();
+	        
+	        //form URL eg
+	        //http://1505874f.projectsbit.org/friendszone/getprofile.php?userid=peter
+	        var url = serverURL() + "/getprofile.php";
+	        url += "?userid=" + localStorage.getItem("userid");
+	        
+	        //what does the server say?
+	        xmlhttp.onreadystatechange = function() {
+	        	//server return 4 and 200, success!
+	            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                //execute getProfileResult()
+	            	getProfileResult(xmlhttp.responseText);
+	            }
+	        }
+	        xmlhttp.open("GET", url, true);
+	        xmlhttp.send();
+	    }
+	
+		//executes on successful call to getprofile.php
+	    function getProfileResult(response) {
+			//what does getprofile.php say?
+	        var arr = JSON.parse(response);
+			
+			/*
+				[{
+					"userid": "peter",
+					"password": "peter",
+					"description": "my name is peter",
+					"profileimage": "yD2vDg",
+					"currentlocation": "Bedok Mall"
+				}]
+			
+			*/
+			//is password empty?
+	        if (arr[0].password.trim() != "") {
+	            oldpassword = arr[0].password.trim();
+	          	//show old password in app
+				//note: do you really want to tell the user his old password?
+	            //$("#oldpassword").val(arr[0].password);
+	        }
+			//is description empty?
+	        if (arr[0].description.trim() != "") {
+	            description = arr[0].description.trim();
+	            //show description in app
+	            $("#description").val(arr[0].description);
+	        }
+			//is profile picture empty?
+			//show profile picture by forming the following e.g
+			//<img src="http://../friendszone/images/abcd.jpg">
+	        if (arr[0].profileimage.trim() != "") {
+	            imgFilename = arr[0].profileimage;
+	            $("#myimg").attr("src", serverURL() + "/images/" + imgFilename);
+	        }
+	    }
+	    
+	    //execute when the page loads
+	    //page loads when user presses [profile]
+	    getUserDetails();
+    </script>
+</head>
+
+<body>
+    <div data-role="page" id="mainpage">
+        <div data-role="header">
+            <h1>FriendsZone</h1>
+            <a href="#" onclick="home()" class="ui-btn ui-icon-home ui-btn-icon-left">Home</a>
+            <a href="#" onclick="logout()" data-icon="power" class="ui-btn-right">Logout</a>
+        </div>
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="locationPage()" data-icon="location">Location</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="searchPage()" data-icon="search">Search</a></li>
+            </ul>
+        </div>
+        <div data-role="content" class="ui-content" id="profilesection">
+    <form name="ProfileForm">
+    
+    	<!-- Image Section -->
+        <img id="myimg" height="100">
+        <input type="button" name="selectimg" id="selectimg" onclick="getImage()" value="Change Picture">
+        <hr>
+		
+		<!-- Description Section -->
+        <label for="description">About Me:</label>
+        <textarea rows="8" name="description" id="description"></textarea>
+        <input type="button" value="Update About Me" onclick="savedescription()">
+        <hr>
+        
+        <!-- Change Password -->
+        <label for="password">Old Password</label>
+        <input type="password" name="oldpassword" id="oldpassword" placeholder="enter password">
+        <label for="password">New Password</label>
+        <input type="password" name="newpassword" id="newpassword" placeholder="enter password" value="peter">
+        <label for="password">Re-Enter New Password</label>
+        <input type="password" name="newpasswordagain" id="newpasswordagain" placeholder="enter password again" value="peter">
+        <input type="button" value="Update Password" onclick="savepassword()">
+    </form>
+</div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,171 @@
+* {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+}
+body {
+    -webkit-touch-callout: none;
+    /* prevent callout to copy image, etc when tap to hold */
+    
+    -webkit-text-size-adjust: none;
+    /* prevent webkit from resizing text to fit */
+    
+    -webkit-user-select: none;
+    /* prevent copy paste, to allow, change 'none' to 'text' */
+    
+    //background-color:grey;
+    linear, left top, left bottom, color-stop(0, #A7A7A7), color-stop(0.51, #E4E4E4));
+    background-attachment: fixed;
+    font-family: "Open Sans";
+    font-size: 12px;
+    height: 100%;
+    margin: 0px;
+    padding-left: 10px;
+    width: 100%;
+}
+/* Portrait layout (default) */
+
+.app {} .ui-btn {
+    /*taken from http://stackoverflow.com/questions/11672421/change-font-size-of-button-text-in-jquery-mobile*/
+    
+    word-wrap: break-word !important;
+    white-space: normal !important;
+}
+.title1 {
+    font-size: 18px;
+    font-weight: bold;
+    font-family: "Open Sans";
+}
+/* Landscape layout (with min-width) */
+
+@media screen and (min-aspect-ratio: 1/1) and (min-width: 400px) {
+    .app {
+        background-position: left center;
+        padding: 0px 0px 75px 200px;
+        /* padding-top + padding-bottom + text area = image height */
+        
+        margin: 0px 0px 0px -198px;
+        /* offset vertical: half of image height */
+        /* offset horizontal: half of image width and text area width */
+    }
+    .fieldset {
+        display: block;
+        margin-left: 2px;
+        margin-right: 2px;
+        padding-top: 0.35em;
+        padding-bottom: 0.625em;
+        padding-left: 0.75em;
+        padding-right: 0.75em;
+        border: 2px groove (internal value);
+    }
+}
+h1 {
+    font-size: 24px;
+    font-weight: normal;
+    margin: 0px;
+    overflow: visible;
+    padding: 0px;
+    text-align: center;
+}
+.event {
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    color: #FFFFFF;
+    font-size: 12px;
+    margin: 0px 30px;
+    padding: 2px 0px;
+}
+.event.listening {
+    background-color: #333333;
+    display: block;
+}
+.event.received {
+    background-color: #4B946A;
+    display: none;
+}
+@keyframes fade {
+    from {
+        opacity: 1.0;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    to {
+        opacity: 1.0;
+    }
+}
+@-webkit-keyframes fade {
+    from {
+        opacity: 1.0;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    to {
+        opacity: 1.0;
+    }
+}
+.blink {
+    animation: fade 3000ms infinite;
+    -webkit-animation: fade 3000ms infinite;
+}
+/* Popup container */
+/* reference from w3school */
+
+.popup {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+/* The actual popup (appears on top) */
+
+.popup .popuptext {
+    visibility: hidden;
+    width: 160px;
+    background-color: #665c67;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 15px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+}
+/* Popup arrow */
+
+.popup .popuptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #665c67 transparent transparent transparent;
+}
+/* Toggle this class when clicking on the popup container (hide and show the popup) */
+
+.popup .show {
+    visibility: visible;
+    -webkit-animation: fadeIn 1s;
+    animation: fadeIn 1s
+}
+/* Add animation (fade in the popup) */
+
+@-webkit-keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

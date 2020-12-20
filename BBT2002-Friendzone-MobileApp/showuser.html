@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>FriendsZone</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src
+'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src
+'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initialscale=1,
+maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+        var userid;
+        
+        //runs when the user presses [Add Friend]
+        function addfriend() {
+        	//validate first
+            if (validate()) {
+            	//prepare to call newfriend.php
+                var xmlhttp = new XMLHttpRequest();
+            	//form the url
+            	//http://1505874f.projectsbit.org/friendszone/newfriend.php?userid=jimmy&friendid=mj&relationshipid=10
+                var url = serverURL() + "/newfriend.php";
+                url += "?userid=" + localStorage.getItem("userid") +
+                    "&friendid=" + userid + "&relationshipid=" + $('#relationship').val();
+
+                xmlhttp.onreadystatechange = function() {
+                	//server return 4, 200, success!
+                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                        getAddFriendResult(xmlhttp.responseText);
+                    }
+                }
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            } else { //fail, user did not choose a relationship
+                alert("Please select a relationship");
+            }
+        }
+
+        function getAddFriendResult(response) {
+        	//what did new friend return?
+            var arr = JSON.parse(response);
+        	//[{"result":1}]
+            if (arr[0].result == 1) {
+                alert("Friend Added");
+            } else { //[{"result":0}]
+                alert("Friend Not Added. Was this person already your friend ? ");
+            }
+        }
+		
+        //did the user choose a relationship
+        function validate() {
+        	//did the user select a relationship in the select menu
+            if ($('#relationship').val() == "") {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        
+        function getUserDetails() {
+        	//prepare to call getprofile.php in the server
+            var xmlhttp = new XMLHttpRequest();
+        	//forms the url
+        	//http://1505874f.projectsbit.org/friendszone/getprofile.php?userid=jimmy
+            var url = serverURL() + "/getprofile.php";
+            //getUrlVars is a function that extracts the parameter value
+            //eg userid in the URL
+            //eg http://...../showuser.html?userid=john <--it extracts john
+            url += "?userid=" +
+                decodeURIComponent(getUrlVars()["userid"]);
+        	
+        	//what did the server say?
+            xmlhttp.onreadystatechange = function() {
+        		//says 4 and 200. success!
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    getProfileResult(xmlhttp.responseText);
+                }
+            }
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+
+        function getProfileResult(response) {
+        	//what did getprofile.php says?
+            var arr = JSON.parse(response);
+        	/*
+        	[{
+				"userid": "jimmy",
+				"password": "jimmy",
+				"description": "hey",
+				"profileimage": "RlCwGB",
+				"currentlocation": "white house"
+			}]
+        	
+        	*/
+        	
+        	//did getprofile.php return a user id?
+            if (arr[0].userid.trim() != "") {
+                userid = arr[0].userid;
+                //display userid in the app
+                $("#userid").html(arr[0].userid);
+            }
+        	//did getprofile.php return a current location?
+            if (arr[0].currentlocation.trim() != "") {
+            	//display current location when clicked, show it in google maps
+                $("#currentLocation").html("Current Location:<a href='#' onclick = 'map(&quot;" + arr[0].currentlocation + "&quot;)' > " + arr[0].currentlocation + "</a>");
+            }
+        	//did get profile.php return a description?
+            if (arr[0].description.trim() != "") {
+            	//show the description in the app
+                $("#description").html(arr[0].description);
+            }
+        	//did getprofile.php return a profile image?
+            if (arr[0].profileimage.trim() != "") {
+            	//show the image <img src="...">
+                $("#myimg").attr("src", serverURL() + "/images/" +
+                    arr[0].profileimage);
+            }
+        }
+
+        function map(location) {
+            var ref = window.open('http://maps.google.com/maps?q=' +
+                location, '_blank', 'location=no,toolbar=no');
+            ref.show();
+        }
+		
+        //gets a list of relationship from the server
+        function getRelationships() {
+        	//perpare to call getrelationship.php
+            var xmlhttp = new XMLHttpRequest();
+        	//forms the url
+        	//http://1505874f.projectsbit.org/friendszone/getrelationships.php
+            var url = serverURL() + "/getrelationships.php";
+			//what did the server say?
+            xmlhttp.onreadystatechange = function() {
+				//say 4 and 200 success!
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    getRelationshipsResult(xmlhttp.responseText);
+                }
+            }
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+		
+        //executes upon successful execution of getrelationships.php
+        function getRelationshipsResult(response) {
+        	//what did getrelationships.php return?
+            var arr = JSON.parse(response);
+        	/*
+        	[{
+				"userid": "jimmy",
+				"password": "jimmy",
+				"description": "hey",
+				"profileimage": "RlCwGB",
+				"currentlocation": "white house"
+			}]
+        	
+        	*/
+            var i;
+        	//loops through the relationships returned by getrelationships.php
+            for (i = 0; i < arr.length; i++) {
+            	//forms the options for the select menu
+            	//<option="10">Classmates</option>
+            	//<option="11">Cousins</option>
+                $('#relationship').append($('<option>', {
+                    value: arr[i].relationshipid,
+                    text: arr[i].description,
+                }));
+            }
+            $("relationship").val("");
+        }
+        
+        //executes when the showuser.html page loads
+        //this page loads when the user clicks [view] on a user's profile in search.html
+        getUserDetails();
+        //executes when the showuser.html page loads
+        getRelationships();
+    </script>
+</head>
+
+<body>
+    <div data-role="page" id="pageone">
+        <div data-role="header">
+            <h1>FriendsZone</h1>
+            <a href="#" onclick="home()" class="ui-btn ui-icon-home ui-btn icon-left">Home</a>
+            <a href="#" onclick="logout()" data-icon="power" class="ui-btnright">Logout</a>
+        </div>
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="locationPage()" data-icon="location">Location</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="searchPage()" data-icon="search">Search</a></li>
+            </ul>
+        </div>
+        <div data-role="content" class="ui-content" id="profilesection">
+            <img id="myimg" height="100">
+            <hr>
+            <div id="userid"></div>
+            <div id="currentLocation"></div>
+            <div id="description"></div>
+            <hr>
+            <form name="RelationshipForm">
+			    <select name="relationship" id="relationship">
+			        <option value="">Please select relationship</option>
+			    </select>
+			    <input type="button" value="Add Friend" onclick="addfriend()">
+			</form>
+        </div>
+    </div>
+</body>
+
+</html>

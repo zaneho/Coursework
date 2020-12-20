@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>BuyForMe</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+	<meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+	    var oldpassword;
+	    var description;
+	    var imgFilename = "";
+		
+		//execute getImage() when user presses [change picture]
+		function getImage() {
+			//pop the mobile device's gallery to allow user to choose an image
+			//execute uploadPhoto() after user chose the photo
+		    navigator.camera.getPicture(uploadPhoto,
+		        function(message) {
+		            alert('get picture failed');
+		        }, {
+		            quality: 10,
+		            destinationType: navigator.camera.DestinationType.FILE_URI,
+		            sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+		        }
+		    );
+		}
+		
+		//executes after the user chose the photo
+		function uploadPhoto(imageURI) {
+			
+			//attempts to upload this photo to the server
+		    var options = new FileUploadOptions();
+		    options.fileKey = "file";
+
+		    options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+		    options.mimeType = "image/jpeg";
+		    var params = new Object();
+		    params.value1 = "test";
+		    params.value2 = "param";
+		    options.params = params;
+		    options.chunkedMode = false;
+		    options.headers = {
+		        Connection: "close"
+		    };
+		    
+		    //runs the filetranser() plugin to upload the photo
+		    //php web service upload.php will execute to accept the photo
+		    //the photo. function win() runs if the upload is successful
+		    //function fail() runs if the upload fails
+		    var ft = new FileTransfer();
+		    ft.upload(imageURI, serverURL() + "/upload.php", win, fail,
+		        options);
+		}
+		
+		//executes on successful photo upload
+		function win(r) {
+			//check if the user had a photo that he wanted to replace
+		    if (imgFilename != "") {
+		    	//yes, run deleteOldImg() to delete the old photo
+		        deleteOldImg(imgFilename);
+		    }
+			
+			//display the newly uploaded photo in the app
+		    var arr = JSON.parse(r.response);
+		    imgFilename = arr[0].result;
+		    $("#myimg").attr("src", serverURL() + "/images/" +
+		        imgFilename);
+			
+		    //executes savenewimage.php to save the name of this photo in teh database
+		    var xmlhttp = new XMLHttpRequest();
+		    var url = serverURL() + "/savenewimage.php";
+		    url += "?userid=" + localStorage.getItem("userid") +
+		        "&profileimage=" + imgFilename;
+		    xmlhttp.onreadystatechange = function() {
+		        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		            saveImageResult(xmlhttp.responseText);
+		        }
+		    }
+		    xmlhttp.open("GET", url, true);
+		    xmlhttp.send();
+		}
+		
+		//executes when there is an older profile image that the user needs to replace
+		function deleteOldImg(oldImg) {
+		    var xmlhttp = new XMLHttpRequest();
+		    
+		    //executes deleteimg.php to delete the previous image
+		    var url = serverURL() + "/deleteimg.php";
+
+		    url += "?imgfile=" + oldImg;
+		    xmlhttp.onreadystatechange = function() {
+		        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		            deleteImgResult(xmlhttp.responseText);
+		        }
+		    }
+		    xmlhttp.open("GET", url, true);
+		    xmlhttp.send();
+		}
+		
+		//executes to display an error message if the old image cannot be replaced
+		function deleteImgResult(response) {
+		    var arr = JSON.parse(response);
+		    if (arr[0].result != "1") {
+		        alert("Error deleting old image.");
+		    }
+		}
+		
+		//executes to display a message to tell the user if the image uodate is successful
+		function saveImageResult(response) {
+		    var arr = JSON.parse(response);
+		    if (arr[0].result == 1) {
+		        alert("Update Success");
+		    } else {
+		        alert("Update Fail");
+		    }
+		}
+		
+		//executes if the new image fails to upload
+		function fail(error) {
+		    alert("An error has occurred: Code = " + error.code);
+		}
+		
+		
+		//executes when page loads
+	    function getUserDetails() {
+			
+	        //prepare to call getprofile.php web service
+			var xmlhttp = new XMLHttpRequest();
+	        
+	        //form URL eg
+	        //http://1505874f.projectsbit.org/friendszone/getprofile.php?userid=peter
+	        var url = serverURL() + "/getprofile.php";
+	        url += "?userid=" + localStorage.getItem("userid");
+	        
+	        //what does the server say?
+	        xmlhttp.onreadystatechange = function() {
+	        	//server return 4 and 200, success!
+	            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+	                //execute getProfileResult()
+	            	getProfileResult(xmlhttp.responseText);
+	            }
+	        }
+	        xmlhttp.open("GET", url, true);
+	        xmlhttp.send();
+	    }
+	
+		//executes on successful call to getprofile.php
+	    function getProfileResult(response) {
+			//what does getprofile.php say?
+	        var arr = JSON.parse(response);
+			
+			/*
+				[{
+					"userid": "peter",
+					"password": "peter",
+					"description": "my name is peter",
+					"profileimage": "yD2vDg",
+					"currentlocation": "Bedok Mall"
+				}]
+			
+			*/
+			//is profile picture empty?
+			//show profile picture by forming the following e.g
+			//<img src="http://../friendszone/images/abcd.jpg">
+	        if (arr[0].profileimage.trim() != "") {
+	            imgFilename = arr[0].profileimage;
+	            $("#myimg").attr("src", serverURL() + "/images/" + imgFilename);
+	        }
+	    }
+	    
+	    //execute when the page loads
+	    //page loads when user presses [profile]
+	    getUserDetails();
+	    
+	   
+    </script>
+</head>
+
+<body>
+  <div data-role="page" id="mainpage">
+        <div data-role="header">
+            <h1>BuyForMe</h1>
+            <a href="#" onclick="profilePage()" class="ui-btn ui-icon-arrow ui-btn-icon-left">Back</a>
+			<a href="#" onclick="logout()" data-icon="power" class="ui-btn-right">Logout</a>
+        </div>
+        
+		<div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="topup()" data-icon="check">Top Up</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="friends()" data-icon="heart">Friends</a></li>
+				<li><a href="#" onclick="buyForMe()" data-icon="shop">Buy For Me</a></li>
+            </ul>
+        </div> 
+        <div data-role="content" class="ui-content" id="profilesection">
+    <form name="ProfileForm">
+    	<!-- Image Section -->
+        <img id="myimg" height="100">
+        <input type="button" name="selectimg" id="selectimg" onclick="getImage()" value="Change Picture">
+
+    </form>
+</div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+		<script src="js/jquery-1.11.3.min.js"></script>
+		<script src="js/jquery.mobile-1.4.5.min.js"></script>
+		<script src="common.js"></script>
+        <title>Hello World</title>
+        <script>
+	        var userid;
+	        var password;
+	        
+	        //excutes before trying to send the userid and password
+	        //to the server
+	        function validate() {
+	        	//first assume valudate = true
+	            var validate = true;
+	        	//did the user enter a user id?
+	            if (userid == "") {
+	            	//no, pop an alert, set validate to false
+	                alert("User ID is required.");
+	                $("#userid").focus();
+	                validate = false;
+	            //did the user enter a password?
+	            } else if (password == "") {
+	                //no, pop an alert, set validate to false
+	            	alert("Password is required.");
+	                $("#password").focus();
+	                validate = false;
+	            }
+	        	//return validate, true if ok, false if error
+	            return validate;
+	        }
+	        
+	        function login() {
+	        	//get the form values for userid and password
+	            userid = $("#userid").val();
+	            password = $("#password").val();
+				
+	            if (validate()){
+	          
+		            //open a http connection to the server
+		            //this is like opening the browser to type the url
+		            var xmlhttp = new XMLHttpRequest();
+		            
+		            //construct the url. a this stage it says
+		            //"http://1505874f.projectsbit.org/friendszone/login.php"
+		            var url = serverURL() + "/login.php";
+					
+		            //form the url. at this stage it says
+		            //http://1505874f.projectsbit.org/friendszone/login.php
+		            //?userid=jimmy&password=jimmy
+		            url += "?userid=" + userid + "&password=" + password;
+		            
+		            //now make the call
+		            xmlhttp.onreadystatechange = function() {
+		            	//if server returns 4 and 200, the call is a success
+		                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		                	//excecute getLoginResult() to find out what the server responded
+		                    getLoginResult(xmlhttp.responseText);
+		                }
+		            }
+		            xmlhttp.open("GET", url, true);
+		            xmlhttp.send();
+	        	}
+	        }
+	
+	        function getLoginResult(response) {
+	        	//find out what login.php responded
+	            var arr = JSON.parse(response);
+	        	
+	        	//it says [{"result":"1"}]
+	            if (arr[0].result == "1") {
+	            	//store userid and password into localstorage
+	                localStorage.setItem("userid", userid);
+	                localStorage.setItem("password", password);
+	                
+	                window.location = "home.html"; //direct user to home.html
+	                
+	            } else { //it says [{"result":"0"}]
+	            	//alert error
+	                alert("Error in User ID or Password");
+	                $("#userid").focus();
+	            }
+	        }
+			
+        </script>
+    </head>
+    <body>
+        <div style="color:#EEAA66" class="app">
+	        <div data-role="page" id="mainpage">
+	        <div style="color:#44CCBB" "data-role="header">
+	            <h1>BuyForMe</h1>
+	        </div>
+			<form name="LoginForm">
+			    <label for="userid">User ID</label>
+			    <input type="text" name="userid" id="userid" placeholder="enter user ID" value="jimmy">
+			    <label for="password">Password</label>
+			    <input type="password" name="password" id="password" placeholder="enter password" value="jimmy">
+			    <div class="ui-grid-a">
+			        <div class="ui-block-a">
+			            <input type="button" value="Login" onclick="login()">
+			        </div>
+			        <div class="ui-block-b">
+			            <input type="button" value="New User" onclick="newuser()">
+			        </div>
+			    </div>
+			</form>
+		</div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+    
+    </body>
+</html>

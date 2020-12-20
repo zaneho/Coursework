@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: http://mp05.mybitmp.org https://ssl.gstatic.com https://*.google.com  https://*.googleapis.com  https://*.gstatic.com  http://chart.apis.google.com https://*.googleusercontent.com 'unsafe-inline' 'unsafe-eval'; media-src *">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link href="css/jquery.mobile-1.4.5.css" rel="stylesheet" />
+    <!-- <link rel="stylesheet" type="text/css" href="css/index.css">--->
+    <link rel="stylesheet" href="css/themes/techhealth.css" />
+    <link href="css/themes/techhealth.css" type="text/css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/themes/jquery.mobile.icons.min.css" />
+
+    <!--datetimepicker-->
+    <link rel="stylesheet" type="text/css" href="css/jquery.datetimepicker.min.css">
+    <script src="lib/jquery-3.2.1.min.js"></script>
+   
+
+    <script src="lib/jquery-1.11.2.min.js"></script>
+    <script src="lib/jquery.mobile-1.4.5.min.js"></script>
+    <script src="lib/jquery.validate.js"></script>
+    <script type="application/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpPdLeO2KzQZojpQZDYbfVRMFonF3sCFc&amp;sensor=true&amp;libraries=places"></script>
+    <script type="text/javascript" src="scripts/common.js"></script>
+    <script type="text/javascript" src="scripts/create.js"></script>
+
+    <!--datetime picker-->
+    
+    <script src="lib/jquery.datetimepicker.full.js"></script>
+
+    <title>TechHealth</title>
+
+</head>
+
+
+<body>
+    <div data-role="page">
+        <div data-role="header">
+            <h1>Create Events</h1>
+            <a id="aNavPanel" href="#nav-panel" class="ui-btn ui-icon-bars ui-btn-icon-notext">Menu</a>
+            <a id="aBack" class="ui-btn ui-icon-back ui-btn-icon-notext ui-corner-all" style="float: right;" onclick="goBack()"></a>
+        </div>
+
+        <div data-role="panel" data-display="push" data-theme="b" id="nav-panel">
+            <!--For Admin-->
+            <ul data-role="listview" id="navAdmin">
+
+                
+
+                <li><a href="#" onClick="window.location='profile.html';" class="ui-btn ui-icon-user ui-btn-icon-left">Profile</a></li>
+                <li><a href="#" onClick="window.location='notification.html';" class="ui-btn ui-icon-info ui-btn-icon-left">Notifications</a></li>
+                <li><a href="#" onClick="window.location='create.html';" class="ui-btn ui-icon-plus ui-btn-icon-left">Create Events</a></li>
+                <li><a href="#" onClick="window.location='current.html';" class="ui-btn ui-icon-eye ui-btn-icon-left">Current Events</a></li>
+                <li><a href="#" onClick="window.location='upcoming.html';" class="ui-btn ui-icon-calendar ui-btn-icon-left">Upcoming Events</a></li>
+                <li><a href="#" onClick="window.location='history.html';" class="ui-btn ui-icon-clock ui-btn-icon-left">Event History</a></li>
+
+                <li><a href="#" id="logout" class="ui-btn ui-icon-power ui-btn-icon-left">Log Out</a></li>
+
+            </ul>
+
+            <script>
+                function myFunction() {
+                    var x = document.getElementById("venus").username;
+                    document.getElementById("demo").innerHTML = x;
+                }
+            </script>
+           
+        </div>
+
+
+        
+
+        <div data-role="content" class="backgroundDiv4" id="createevents">
+           
+
+           <div id="test" style="visibility: hidden;"></div>
+            
+            <form name="CreateEvent" id="CreateEvent">
+
+                <div data-role="fieldcontainer">
+                    <label for="EventName"><b>Event Name:</b></label>
+                    <input type="text" name="eventname" id="eventname" placeholder="Enter Event Name" value="Event-01" required class="validate" >
+                </div>
+
+                <div data-role="fieldcontainer">
+                    <label for="datetime"><b>Date & Time:</b></label>
+                    <input type="text" name="datetime" id="datetime" placeholder="YYYY-MM-DD hh:mm" value="" required class="validate">
+                 </div>
+
+                <div data-role="fieldcontainer">
+                    <label for="location"><b>Location:</b></label>
+                    <input type="text" name="location" id="location1" placeholder="Enter Location" value="Track field 1" required class="validate">
+                </div>
+
+                <div data-role="fieldcontainer">
+                    <label for="Emergency Contact"><b>Emergency Service Contact:</b></label>
+                    <input type="text" name="emergencyperson" id="emergencyperson" placeholder="Person In Charge (Full Name)" value="Justin Tan" required class="validate">
+                </div>
+
+                 <div data-role="fieldcontainer">
+                     <input type="tel" name="emergencyno" id="emergencyno" placeholder="Contact Number" value="83220466" required class="validate">
+                 </div>
+
+                  <div data-role="fieldcontainer">
+                        <label for="password"><b>Event Password (min characters: 8)</b></label>
+                        <input type="password" name="eventpw" id="eventpw" placeholder="Enter Password" required class="validate" value="12341234">
+                  </div>
+
+                    <div data-role="fieldcontainer">
+                        <label for="txtPassword1O"><b>Re-Enter Event Password</b></label>
+                        <input type="password" name="eventpw1" id="eventpw1" placeholder="Re-enter Password" required class="validate" value="12341234">
+                    </div>
+
+                    <div id="txtuserid" style="visibility: hidden;"></div>
+                    <input type="button" value="Create Event" id="create1">
+                </form>
+        </div>
+
+
+    </div> 
+
+    
+
+    <script> $(".backgroundDiv4").css("background-image", "url('images/run3.jpg')");</script>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="scripts/platformOverrides.js"></script>
+</body>
+</html>
+

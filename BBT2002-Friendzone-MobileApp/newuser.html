@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>FriendsZone</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initialscale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+    var userid;
+    var password;
+    var passwordagain;
+    var description;
+    var imgFilename = "";
+
+	
+    //excutes when the user presses [Create Account]
+    function savenewuser() {
+    	//retrieve fields from the form
+        userid = $("#userid").val();
+        password = $("#password").val();
+        passwordagain = $("#passwordagain").val();
+        description = $("#description").val();
+        profileimage = imgFilename;
+		
+        //validate what the user has entered
+        if (validate()) {
+        	//make a webservice call to newuser.php
+            var xmlhttp = new XMLHttpRequest();
+            var url = serverURL() + "/newuser.php";
+			
+            //form the url to call newuser.php
+            //eg. http://1505874f.projectsbit.org/friendszone/newuser.php?peter&password=peter&description=hello&profileimage=123
+            url += "?userid=" + userid + "&password=" + password +
+                "&description=" + description + "&profileimage=" + profileimage;
+            xmlhttp.onreadystatechange = function() {
+                //if newuser.php returns 4 and 200, call is successful
+            	if (xmlhttp.readyState == 4 && xmlhttp.status ==
+                    200) {
+                    //execute getNewUserResult()
+            		getNewUserResult(xmlhttp.responseText);
+                }
+            }
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
+        }
+    }
+	//validate the user's input
+    function validate() {
+        var validate = true;
+        //left userid blank?
+        if (userid == "") {
+            alert("User ID is required.");
+            $("#userid").focus();
+            validate = false;
+        //left password blank?
+        } else if (password == "") {
+            alert("Password is required.");
+            $("#password").focus();
+            validate = false;
+          //left passwordagain blank?
+        } else if (passwordagain == "") {
+            alert("Re-Enter password.");
+            $("#passwordagain").focus();
+            validate = false;
+          //password and passwordagain don't match?
+        } else if (passwordagain != password) {
+            alert("Passwords do not match.");
+            $("#passwordagain").focus();
+            validate = false;
+          //didn't choose an image?
+        } else if (imgFilename == "") {
+            alert("Select a photo.");
+            $("#selectimg").focus();
+            validate = false;
+        }
+        return validate;
+    }
+   
+    //executes after calling newuser.php
+    function getNewUserResult(response) {
+    	//what did newuser.php return?
+        var arr = JSON.parse(response);
+    	//return [{"result":1}]
+        if (arr[0].result == "1") {
+        	//success! account created
+            alert("Your account has been created.");
+        	//store userid and password into local storage
+            localStorage.setItem("userid", userid);
+            localStorage.setItem("password", password);
+            window.location = "me.html"; //direct user to me.html
+            //[{"result":0}]
+        } else {
+        	//failed, newuser.php returned 0. pop error message
+            alert("User ID already exist.");
+            $("#userid").focus();
+        }
+    }
+    
+    //executes when the user presses [My Picture]
+    function getImage() {
+    	//opens the image gallery of the mobile device,
+    	//execute the function uploadPhoto()
+        navigator.camera.getPicture(uploadPhoto,
+                function(message) {
+                    alert('get picture failed ');
+                    }, {
+                            quality: 10,
+                            destinationType: navigator.camera.DestinationType.FILE_URI,
+                            sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+                        });
+                }
+				
+    			//executes after the user selects an image from the gallery
+                function uploadPhoto(imageURI) {
+    				//uses the File Upload plugin
+    				//configure the settings for file upload to server
+                    var options = new FileUploadOptions();
+                    options.fileKey = "file";
+
+                    options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+                    options.mimeType = "image/jpeg";
+                    var params = new Object();
+                    params.value1 = "test";
+                    params.value2 = "param";
+                    options.params = params;
+                    options.chunkedMode = false;
+                    options.headers = {
+                        Connection: "close"
+                    };
+                    //call upload.php in the server
+                    var ft = new FileTransfer();
+                    //upload.php will attempt to receive the file
+                    //win() executes if it successfully receive the file in the server
+                    //fail() executes if it couldn't receive the file in the server
+                    ft.upload(imageURI, serverURL() + "/upload.php", win,
+                        fail, options);
+                }
+				
+    			//win executes if the file is successfully uploaded
+                function win(r) {
+    				//check if the user tried to upload another image previously
+                    if (imgFilename != "") {
+                    	//execute the previous image
+                        deleteOldImg(imgFilename);
+                    }
+                    var arr = JSON.parse(r.response);
+                    imgFilename = arr[0].result;
+                    //display the image that was successfully uploaded in the mobile app
+                    $("#myimg").attr("src", serverURL() + "/images/" +
+                        imgFilename);
+                }
+				//executes to delete an old image
+                function deleteOldImg(oldImg) {
+                    var xmlhttp = new XMLHttpRequest();
+                    //call deleteimg.php in the server to delete the old image
+                    var url = serverURL() + "/deleteimg.php";
+		
+                    url += "?imgfile=" + oldImg;
+                    xmlhttp.onreadystatechange = function() {
+                    	//server returns 4 and 200 if deletion is successful
+                        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                            deleteImgResult(xmlhttp.responseText);
+                        }
+                    }
+                    xmlhttp.open("GET", url, true);
+                    xmlhttp.send();
+                }
+
+				//executes after deleteimg.php tries to delete the old image
+                function deleteImgResult(response) {
+                    //ay error in deleting the old image?
+					var arr = JSON.parse(response);
+                    if (arr[0].result != "1") {
+                        alert("Error deleting old image.");
+                    }
+                }
+				
+				//executes if the upload fails. show the error code
+                function fail(error) {
+                    alert("An error has occurred: Code = " + error.code);
+                }
+       </script>
+</head>
+
+<body>
+    <div data-role="page" id="pageone">
+        <div data-role="header">
+            <h1>FriendsZone</h1>
+        </div>
+        <div data-role="content" class="ui-content" id="newusersection">
+            <form name="NewUserForm">
+                <label for="userid">User ID</label>
+                <input type="text" name="userid" id="userid" placeholder="enter user ID" value="peter">
+                <label for="password">Password</label>
+                <input type="text" name="password" id="password" placeholder="enter password" value="peter">
+                <label for="password">Re-Enter Password</label>
+                <input type="text" name="passwordagain" id="passwordagain" placeholder="enter password again" value="peter">
+                <img id="myimg" height="100">
+                <input type="button" name="selectimg" id="selectimg" onclick="getImage()" value="My Picture">
+
+                <label for="description">About Me:</label>
+                <textarea rows="8" name="description" id="description"></textarea>
+                <input type="button" value="Create Account" onclick="savenewuser()">
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: http://mp05.mybitmp.org https://ssl.gstatic.com https://*.google.com  https://*.googleapis.com  https://*.gstatic.com  http://chart.apis.google.com https://*.googleusercontent.com 'unsafe-inline' 'unsafe-eval'; media-src *">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    
+    <link href="css/jquery.mobile-1.4.5.css" rel="stylesheet" />
+    <link href="css/datedropper.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+
+    <script src="lib/jquery-1.11.2.min.js"></script>
+    <script src="lib/jquery.mobile-1.4.5.min.js"></script>
+    <script src="lib/jquery.validate.js"></script>
+    <script src="lib/datedropper.js"></script>
+
+    <script type="application/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCpPdLeO2KzQZojpQZDYbfVRMFonF3sCFc&amp;sensor=true&amp;libraries=places"></script>
+    <script type="text/javascript" src="scripts/common.js"></script>
+    <script type="text/javascript" src="scripts/register.js"></script>
+
+    <title>TechHealth</title>
+</head>
+<body>
+    <div data-role="page">
+        <div data-role="header">
+            <h1>Register User</h1>
+        </div>
+            <div data-role="content" class="ui-content"> 
+                <form>
+                    <fieldset data-role="controlgroup" data-type="horizontal" style="text-align:center;">
+                        <legend><b>Sign up as:</b></legend>
+                        <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2a" value="participant">
+                        <label for="radio-choice-h-2a">Participant</label>
+                        <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2b" value="organiser">
+                        <label for="radio-choice-h-2b">Organiser</label>
+                        <input type="radio" name="radio-choice-h-2" id="radio-choice-h-2c" value="helper">
+                        <label for="radio-choice-h-2c">Helper</label>
+                    </fieldset>
+                </form>
+                <br />
+                <form name="RegisterParticipantForm" id="RegisterParticipantForm" style="visibility:hidden;">
+                    <div data-role="fieldcontainer"><label for="txtIdP">User ID</label> <input  type="text" name="txtIdP" id="txtIdP" placeholder="enter User ID" required class="validate"></div>
+                    <div data-role="fieldcontainer"><label for="txtPasswordP">Password (min characters: 8)</label> <input type="password" name="txtPasswordP" id="txtPasswordP" placeholder="enter Password" required class="validate"></div>
+                    <div data-role="fieldcontainer"><label for="txtPassword1P">Re-Enter Password</label> <input type="password" name="txtPassword1P" id="txtPassword1P" placeholder="re-enter Password" required class="validate"></div>
+                    <br />
+                    <div data-role="fieldcontainer"><label for="txtNameP">Name</label> <input type="text" name="txtNameP" id="txtNameP" placeholder="enter Name" required class="validate"></div>
+                    <div data-role="fieldcontainer"><label for="txtNRICP">NRIC</label> <input type="text" name="txtNRICP" id="txtNRICP" placeholder="enter NRIC" required class="validate"></div>
+                    <div data-role="fieldcontainer"><label for="txtEmailP">Email</label> <input type="text" name="txtEmailP" id="txtEmailP" placeholder="enter Email" required class="validate"></div>
+                    <div data-role="fieldcontainer"><label for="txtDOBP">Date Of Birth (dd-mm-yyyy)</label> <input type="text" name="txtDOBP" id="txtDOBP" data-format="d-m-Y"  data-modal="true" placeholder="enter Date Of Birth" required class="validate"/></div>
+
+                    <div data-role="fieldcontainer" style="width:100px;float:left;"><label for="txtHeightP">Height (cm)</label> <input type="text" name="txtHeightP" id="txtHeightP" placeholder="Height" value="" required class="validate"></div>
+                    <div data-role="fieldcontainer" style="width:100px;float:left;"><label for="txtWeightP">Weight (kg)</label> <input type="text" name="txtWeightP" id="txtWeightP" placeholder="Weight" value="" required class="validate"></div>
+                    <div data-role="fieldcontainer" style="width:100px;float:left;"><label for="txtBMIP">BMI</label> <input type="text" name="txtBMIP" id="txtBMIP" value="" disabled></div>
+                    <div data-role="fieldcontainer">
+                        <br /><br /><br /><br /><br /><br /><br /><br />
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a"><input type="submit" id="btnSubmitParticipant" value="Submit" class="btn-red"></div>
+                            <div class="ui-block-b"><input type="reset" id="btnResetParticipant" value="Reset" class="btn-blue"></div>
+                        </div>
+                    </div>
+                </form>
+                <form name="RegisterOrganiserForm" id="RegisterOrganiserForm" style="visibility:hidden;">
+                    <div data-role="fieldcontainer"><label for="txtIdO">User ID</label> <input type="text" name="txtIdO" id="txtIdO" placeholder="enter User ID" required class="validate" value="Organiser1"></div>
+                    <div data-role="fieldcontainer"><label for="txtPasswordO">Password (min characters: 8)</label> <input type="password" name="txtPasswordO" id="txtPasswordO" placeholder="enter Password" required class="validate" value="12341234"></div>
+                    <div data-role="fieldcontainer"><label for="txtPassword1O">Re-Enter Password</label> <input type="password" name="txtPassword1O" id="txtPassword1O" placeholder="re-enter Password" required class="validate" value="12341234"></div>
+                    <br />
+                    <div data-role="fieldcontainer"><label for="txtNameO">Organisation Name</label> <input type="text" name="txtNameO" id="txtNameO" placeholder="enter Organisation Name" required class="validate" value="Mindef"></div>
+                    <div data-role="fieldcontainer"><label for="txtEmailO">Email</label> <input type="text" name="txtEmailO" id="txtEmailO" placeholder="enter Email" required class="validate" value="contact@ns.sg"></div>
+                    <br /><br />
+                        <div class="ui-grid-a">
+                            <div class="ui-block-a"><input type="submit" id="btnSubmitOrganiser" value="Submit" class="btn-red"></div>
+                            <div class="ui-block-b"><input type="reset" id="btnResetOrganiser" value="Reset" class="btn-blue"></div>
+                        </div>
+                </form>
+                <form name="RegisterHelperForm" id="RegisterHelperForm" style="visibility:hidden;">
+                    <div data-role="fieldcontainer"><label for="txtIdH">User ID</label> <input type="text" name="txtIdH" id="txtIdH" placeholder="enter User ID" required class="validate" value=""></div>
+                    <div data-role="fieldcontainer"><label for="txtPasswordH">Password (min characters: 8)</label> <input type="password" name="txtPasswordH" id="txtPasswordH" placeholder="enter Password" required class="validate" value=""></div>
+                    <div data-role="fieldcontainer"><label for="txtPassword1H">Re-Enter Password</label> <input type="password" name="txtPassword1H" id="txtPassword1H" placeholder="re-enter Password" required class="validate" value=""></div>
+                    <br />
+                    <div data-role="fieldcontainer"><label for="txtNameH">Name</label> <input type="text" name="txtNameH" id="txtNameH" placeholder="enter Name" required class="validate" value=""></div>
+                    <div data-role="fieldcontainer"><label for="txtEmailH">Email</label> <input type="text" name="txtEmailH" id="txtEmailH" placeholder="enter Email" required class="validate" value=""></div>
+                    <br /><br />
+                    <div class="ui-grid-a">
+                        <div class="ui-block-a"><input type="submit" id="btnSubmitHelper" value="Submit" class="btn-red"></div>
+                        <div class="ui-block-b"><input type="reset" id="btnResetHelper" value="Reset" class="btn-blue"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="scripts/platformOverrides.js"></script>
+</body>
+</html>

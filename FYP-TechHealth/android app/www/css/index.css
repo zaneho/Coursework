@@ -1,0 +1,140 @@
+﻿html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.ui-page {
+    background: #c1c1c1;
+}
+
+    .ui-page .ui-header {
+        font-size: 18px;
+        background-color: firebrick;
+        color: white;
+    }
+
+    .ui-page .ui-content {
+        background: #c1c1c1;
+        height: inherit;
+    }
+
+        /*.ui-page .ui-footer {
+        font-size: 14px;
+        background: #2d2d2d;
+        color: white;
+    }*/
+
+        .ui-page .ui-content .ui-block-a .ui-btn {
+            color: white;
+            background: red;
+        }
+
+        .ui-page .ui-content .ui-block-b .ui-btn {
+            color: white;
+            background: #0071bc;
+        }
+
+        .ui-page .ui-content .ui-block-c .ui-btn {
+            color: white;
+            background: red;
+        }
+
+.ui-li-static.ui-collapsible > .ui-collapsible-heading {
+    margin: 0;
+}
+
+.ui-li-static.ui-collapsible {
+    padding: 0;
+}
+
+    .ui-li-static.ui-collapsible > .ui-collapsible-heading > .ui-btn {
+        border-top-width: 0;
+    }
+
+    .ui-li-static.ui-collapsible > .ui-collapsible-heading.ui-collapsible-heading-collapsed > .ui-btn,
+    .ui-li-static.ui-collapsible > .ui-collapsible-content {
+        border-bottom-width: 0;
+    }
+
+.ui-icon-history:after {
+    background-image: url('../images/history.png');
+    background-size: 18px 18px;
+}
+.ui-icon-bell:after {
+    background-image: url('../images/notifications-bell-button.png');
+    background-size: 18px 18px;
+}
+.ui-icon-exit:after {
+    background-image: url('../images/exit.png');
+    background-size: 18px 18px;
+}
+
+#aRefresh, #aNavPanel {
+    padding-top: 15px;
+    padding-bottom: 0;
+    background-color: firebrick;
+    border: none;
+}
+
+#aBack {
+    background: #0071bc;
+}
+
+label.error:before {
+    content: "";
+    display: inline-block;
+    margin-left: 5px;
+    margin-right: 5px;
+    background: url('../images/Webp.net-resizeimage (1).png') no-repeat;
+    width: 15px;
+    height: 15px;
+    color: red;
+}
+
+input.error {
+    border: 1px solid red;
+}
+
+.ui-panel {
+    width: 12em;
+}
+
+    .ui-panel.ui-panel-position-right {
+        width: 15em;
+    }
+
+    .ui-panel.ui-panel-closed {
+        width: 0;
+    }
+
+.ui-panel-animate.ui-panel-position-left.ui-panel-display-overlay, .ui-panel-animate.ui-panel-position-left.ui-panel-display-push {
+    -webkit-transform: translate3d(-10em, 0, 0);
+    -moz-transform: translate3d(-10em, 0, 0);
+    transform: translate3d(-10em, 0, 0)
+}
+
+.ui-panel-animate.ui-panel-position-right.ui-panel-display-overlay, .ui-panel-animate.ui-panel-position-right.ui-panel-display-push {
+    -webkit-transform: translate3d(15em, 0, 0);
+    -moz-transform: translate3d(15em, 0, 0);
+    transform: translate3d(15em, 0, 0)
+}
+
+.ui-panel-animate.ui-panel-content-fixed-toolbar-position-left.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-reveal, .ui-panel-animate.ui-panel-content-fixed-toolbar-position-left.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-push, .ui-panel-animate.ui-panel-content-wrap-position-left.ui-panel-content-wrap-open.ui-panel-content-wrap-display-reveal, .ui-panel-animate.ui-panel-content-wrap-position-left.ui-panel-content-wrap-open.ui-panel-content-wrap-display-push {
+    -webkit-transform: translate3d(10em, 0, 0);
+    -moz-transform: translate3d(10em, 0, 0);
+    transform: translate3d(10em, 0, 0)
+}
+
+.ui-panel-animate.ui-panel-page-content-position-left {
+    -webkit-transform: translate3d(10em, 0, 0);
+    -moz-transform: translate3d(10em, 0, 0);
+    transform: translate3d(10em, 0, 0);
+}
+
+.ui-panel-animate.ui-panel-content-fixed-toolbar-position-right.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-reveal, .ui-panel-animate.ui-panel-content-fixed-toolbar-position-right.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-push, .ui-panel-animate.ui-panel-content-wrap-position-right.ui-panel-content-wrap-open.ui-panel-content-wrap-display-reveal, .ui-panel-animate.ui-panel-content-wrap-position-right.ui-panel-content-wrap-open.ui-panel-content-wrap-display-push {
+    -webkit-transform: translate3d(-15em, 0, 0);
+    -moz-transform: translate3d(-15em, 0, 0);
+    transform: translate3d(-15em, 0, 0)
+}

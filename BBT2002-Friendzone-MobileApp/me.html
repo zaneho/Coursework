@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>FriendsZone</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="css/jquery.mobile.datepicker.css" />
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+    <script src="js/jquery.ui.datepicker.js"></script>
+    <script id="mobile-datepicker" src="js/jquery.mobile.datepicker.js"></script>
+    <script src="common.js"></script>
+    <script>
+    		//gets a list of r/s using the getrelationship.php web service
+		    function getRelationships() {
+		        var xmlhttp = new XMLHttpRequest();
+		        var url = serverURL() + "/getrelationships.php";
+		
+		        xmlhttp.onreadystatechange = function() {
+		            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		                getRelationshipsResult(xmlhttp.responseText);
+		            }
+		        }
+		        xmlhttp.open("GET", url, true);
+		        xmlhttp.send();
+		    }
+			
+    		//add r/s retrieved from getrelationship.php i <select> menu
+		    function getRelationshipsResult(response) {
+		        var arr = JSON.parse(response);
+		        var i;
+		        for (i = 0; i < arr.length; i++) {
+		            $('#relationship').append($('<option>', {
+		                value: arr[i].relationshipid,
+		                text: arr[i].description,
+		            }));
+		        }
+		        $("relationship").val("");
+		    }
+			
+    		//open the dialog to display r/s for user to choose
+		    function friendswall() {
+		        window.location = "#relationshipdialog";
+		    }
+			
+    		//executes when user presses [Friends]
+		    function viewfriendswall() {
+    			//prepare to call viewwall.php
+		        var xmlhttp = new XMLHttpRequest();
+		        var url = serverURL() + "/viewwall.php";
+				
+		        //did the user choose a relationship
+		        //no, the user says "All Relationship"
+		        if ($("#relationship").val() == "") {
+		        	//url will look like this
+		        	//http://1505874f.projectsbit.org/friendszone/viewwall.php?userid=jimmy&relatioshipid=&view=friends   <--no r/s id
+		            url += "?userid=" + localStorage.getItem("userid") +
+		                "&relationshipid=&view=friends";
+		        } else { 
+		        	//else url will look like this
+		        	//http://1505874f.projectsbit.org/friendszone/viewwall.php?userid=jimmy&relatioshipid=10&view=friends   <--with r/s id
+		            url += "?userid=" + localStorage.getItem("userid") +
+		                "&relationshipid=" + $("#relationship").val() + "&view=friends";
+		        }
+		        xmlhttp.onreadystatechange = function() {
+		            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		                viewfriendswallresult(xmlhttp.responseText);
+		            }
+		        }
+		        xmlhttp.open("GET", url, true);
+		        xmlhttp.send();
+		    }
+			
+		    function viewfriendswallresult(response) {
+		    	//what dpes viewwall.php return?
+		        var arr = JSON.parse(response);
+		        var i;
+		        //empty the wall first
+		        $("#wallcontentset").empty();
+		        /*
+		        [{
+					"wallpostid": "27",
+					"userid": "jack",
+					"timeofposting": "2017-02-03 11:55:23",
+					"message": "hello jimmy"
+				}]
+		        */
+		        //loop, because you will get more than 1 post
+		        for (i = 0; i < arr.length; i++) {
+		        	//form this
+		        	/*
+		        	<b> jeff 2017-02-03 11:55:23<b><br/>
+		        	hello jimmy
+		        	<hr>
+		        	*/
+		            $("#wallcontentset").append("<b>" + arr[i].userid + " " + arr[i].timeofposting + "</b><br/>" + arr[i].message + "<hr>");
+		        }
+		        //close the dialog, goes back to the main me.html page
+		        window.location = "#mainpage";
+		    }
+    
+    		//executes when the user presses [Shout!]
+		    function writewall() {
+    			//prepare to make a call to the savenewwallpost.php service
+		        var xmlhttp = new XMLHttpRequest();
+    			
+    			//form the URL to call e.g
+    			//http://1505874f.projectsbit.org/friendszone/savenewwallpost.php?userid=jimmy&shout=hello
+		        var url = serverURL() + "/savenewwallpost.php";
+		        url += "?userid=" + localStorage.getItem("userid") +
+		            "&shout=" + $("#shout").val();
+		        
+		        //what did the server return?
+		        xmlhttp.onreadystatechange = function() {
+		            //server returns 4 and 200. success!
+		        	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		                //execute writeWallResult()
+		        		writeWallResult(xmlhttp.responseText);
+		            }
+		        }
+		        xmlhttp.open("GET", url, true);
+		        xmlhttp.send();
+		    }
+			
+    		//executes on successful server call
+		    function writeWallResult(response) {
+    			//so what did savenewwallpost.php return?
+		        var arr = JSON.parse(response);
+    			
+    			//it says [{"result":1}]
+		        if (arr[0].result == 1) {
+		        	//clear the shout box, since you shouted already
+		            $("#shout").val("");
+		            mywall();
+		        } else {
+		        	//it says [{"result":0}]
+		        	//say "update fail"
+		            alert("Update Fail");
+		        }
+		    }
+    		
+		    function mywall() {
+		        var xmlhttp = new XMLHttpRequest();
+		        var url = serverURL() + "/viewwall.php";
+		        url += "?userid=" + localStorage.getItem("userid") + "&relationshipid=&view=me";
+		        xmlhttp.onreadystatechange = function() {
+		            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+		                mywallresult(xmlhttp.responseText);
+		            }
+		        }
+		        xmlhttp.open("GET", url, true);
+		        xmlhttp.send();
+		    }
+		
+		    function mywallresult(response) {
+		        var arr = JSON.parse(response);
+		        var i;
+		        $("#wallcontentset").empty();
+		        for (i = 0; i < arr.length; i++) {
+		            $("#wallcontentset").append("<b>" +
+		                arr[i].timeofposting + "</b><br/>" + arr[i].message + "<hr>");
+		        }
+		    }
+		    
+		    //executes mywall() to display the user's wall post
+		    //this runs when the me.html page loads
+		    mywall();		
+		    getRelationships();
+    </script>
+</head>
+
+<body>
+    <div data-role="page" id="mainpage">
+        <div data-role="header">
+            <h1>FriendsZone</h1>
+            <a href="#" onclick="home()" class="ui-btn ui-icon-home ui-btn-icon-left">Home</a>
+            <a href="#" onclick="logout()" data-icon="power" class="ui-btn-right">Logout</a>
+        </div>
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" onclick="locationPage()" data-icon="location">Location</a></li>
+                <li><a href="#" onclick="profilePage()" data-icon="user">Profile</a></li>
+                <li><a href="#" onclick="searchPage()" data-icon="search">Search</a></li>
+            </ul>
+        </div>
+        <div data-role="content" class="ui-content" id="wallsection">
+            <div id="wallentryset" class="ui-grid-solo">
+                <form name="WallForm" action="#" onkeypress="return event.keyCode != 13;">
+                    <div class="ui-block-a">
+                        <textarea rows="8" name="shout" id="shout" placeholder="What are you doing now?"></textarea>
+                    </div>
+                    <div class="ui-block-b">
+                        <input type="button" onclick="writewall()" value="Shout!">
+                    </div>
+                </form>
+            </div>
+            <div id="walltoggleset" class="ui-grid-solo">
+			    <a href="#" data-role="button" onclick="mywall()" data-inline="true" data-mini="true" data-icon="comment">Me</a>
+			    <a href="#" data-role="button" onclick="friendswall()" data-inline="true" data-mini="true" data-icon="comment">Friends</a>
+			</div>
+			<div data-role="content" class="ui-content" id="wallcontentset">
+			</div>
+        </div>
+    </div>
+    <div data-role="page" data-dialog="true" id="relationshipdialog">
+    <div data-role="content" class="ui-content" id="profilesection">
+        <form name="RelationshipForm">
+            <select name="relationship" id="relationship">
+                <option value="">All relationships</option>
+            </select>
+            <input type="button" value="View" onclick="javascript:viewfriendswall()">
+        </form>
+    </div>
+</div>
+</body>
+
+</html>
