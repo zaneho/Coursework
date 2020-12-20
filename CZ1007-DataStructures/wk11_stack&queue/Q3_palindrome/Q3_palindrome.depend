@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1540305026 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk10_stacks&q\q3_palindrome\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
+1540305028 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk11_stack&queue\q3_palindrome\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+

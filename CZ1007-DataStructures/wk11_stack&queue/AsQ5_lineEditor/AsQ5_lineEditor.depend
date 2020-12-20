@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1541654597 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk11_stack&queue\asq5_lineeditor\main.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+

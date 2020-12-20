@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1536920365 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk5_character string\wk5_assignment_q2_longwordlength\main.c
+	<stdio.h>
+	<ctype.h>
+

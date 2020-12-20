@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1537341361 source:c:\users\xho006\desktop\wk6_structures\q1_computecircle\main.c
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+

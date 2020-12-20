@@ -1,0 +1,170 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "util.h"
+
+
+EXEC SQL INCLUDE SQLCA; 
+
+EXEC SQL BEGIN DECLARE SECTION;
+   char db[6] = "cs348";
+   char  SIN[20];
+
+   char cnum[5],room[7],term[3];
+   int section, p1;
+   char c2[5],r2[7],t2[3];
+   int s2, p2;
+   char day[10],time[5];
+
+char dcnum[5],dterm[3],droom[7],dtime[5],dday[10];
+int dsection, dpriority=-1, d=-1;
+EXEC SQL END DECLARE SECTION;
+
+int main(int argc, char *argv[]) {
+   if (argc<2) {
+      printf("Usage: conflicts <pattern>\n");
+      exit(1);
+   };
+
+   EXEC SQL WHENEVER SQLERROR  GO TO error;
+
+   EXEC SQL CONNECT TO :db;
+
+   strncpy(SIN,argv[1],20);
+
+   EXEC SQL DECLARE conflicts CURSOR FOR 
+SELECT * FROM (
+SELECT DISTINCT c1.day, c1.time FROM
+(SELECT q2.cnum, q2.term, q2.section, s.day, s.time, s.room FROM schedule as s, 
+(SELECT q1.cnum, q1.term, q1.section FROM 
+((SELECT cnum, term, section from ENROLLMENT WHERE SNUM = :SIN) 
+UNION 
+(SELECT cnum, term, section from CLASS WHERE PNUM =:SIN)) as q1 
+WHERE NOT EXISTS 
+(SELECT m.cnum, m.term, m.section FROM MARK as m 
+WHERE q1.cnum=m.cnum AND q1.term=m.term AND q1.section=m.section)) as q2 
+WHERE q2.cnum=s.cnum AND q2.section=s.section AND q2.term=s.term) as c1, 
+(SELECT q2.cnum, q2.term, q2.section, s.day, s.time, s.room FROM schedule as s, 
+(SELECT q1.cnum, q1.term, q1.section FROM 
+((SELECT cnum, term, section from ENROLLMENT WHERE SNUM = :SIN) 
+UNION 
+(SELECT cnum, term, section from CLASS WHERE PNUM =:SIN)) as q1 
+WHERE NOT EXISTS 
+(SELECT m.cnum, m.term, m.section FROM MARK as m 
+WHERE q1.cnum=m.cnum AND q1.term=m.term AND q1.section=m.section)) as q2 
+WHERE q2.cnum=s.cnum AND q2.section=s.section AND q2.term=s.term) as c2 
+WHERE c1.day=c2.day AND c1.time=c2.time AND c1.term=c2.term AND (c1.cnum<>c2.cnum OR c1.section<>c2.section))
+ORDER BY 
+	CASE day 
+		WHEN 'MONDAY' THEN 1 
+		WHEN 'TUESDAY' THEN 2 
+		WHEN 'WEDNESDAY' THEN 3 
+		WHEN 'THURSDAY' THEN 4 
+		WHEN 'FRIDAY' THEN 5 
+		WHEN 'SATURDAY' THEN 6 
+		WHEN 'SUNDAY' THEN 7 
+	END, time;
+
+
+   EXEC SQL OPEN conflicts;
+   EXEC SQL WHENEVER NOT FOUND GO TO end;
+
+   for (;;) {
+//     EXEC SQL FETCH conflicts INTO :day,:time,:cnum,:section,:room,:c2,:s2,:r2;
+//   printf("%s %s: %s(%d) %s -- %s(%d) %s -- ",day, time, cnum,section,room,c2,s2,r2);
+
+     EXEC SQL FETCH conflicts INTO :day,:time;
+
+	   EXEC SQL DECLARE getConflicts CURSOR FOR 
+(SELECT q2.cnum,q2.term, q2.section, s.day, s.time, s.room, q2.priority FROM schedule as s, 
+(SELECT q1.cnum, q1.term, q1.section, q1.priority FROM 
+((SELECT cnum, term, section, 0 as priority from ENROLLMENT WHERE SNUM = :SIN) 
+UNION 
+(SELECT cnum, term, section, 1 as priority from CLASS WHERE PNUM =:SIN)) as q1 
+WHERE NOT EXISTS 
+(SELECT m.cnum, m.term, m.section FROM MARK as m 
+WHERE q1.cnum=m.cnum AND q1.term=m.term AND q1.section=m.section)) as q2 
+WHERE q2.cnum=s.cnum AND q2.section=s.section AND q2.term=s.term 
+AND day= :day AND time= :time);
+
+		EXEC SQL OPEN getConflicts;
+		EXEC SQL FETCH getConflicts INTO :cnum,:term,:section,:day,:time,:room,:p1;
+		EXEC SQL FETCH getConflicts INTO :c2,:t2,:s2,:day,:time,:r2,:p2;
+		EXEC SQL CLOSE getConflicts;
+//    printf("%s \t %s ",day, time);
+   printf("%s %s: %s(%d) %s -- %s(%d) %s -- ",day, time, cnum,section,room,c2,s2,r2);
+
+if(p1 != p2){
+	if(p1>p2){//delete c2
+		printf("%s (%i) deleted",c2,s2);
+			if(p2==0){//enrolled
+				EXEC SQL DELETE FROM enrollment
+				WHERE snum=:SIN,cnum=:c2,term=t2,section=s2;
+
+			}else{//teach
+				EXEC SQL DELETE FROM enrollment
+				WHERE cnum=:cnum,term=:term,section=:section;
+				EXEC SQL DELETE FROM schedule
+				WHERE cnum=:cnum,term=:term,section=:section,day=:day,time=:time;
+				EXEC SQL DELETE FROM class
+				WHERE pnum=:SIN,cnum=:c2,term=t2,section=s2;
+			}
+	}else{//delete cnum
+		printf("%s (%i) deleted",cnum,section);
+			if(p1==0){//enrolled
+				EXEC SQL DELETE FROM enrollment
+				WHERE snum=:SIN,cnum=:cnum,term=term,section=section;
+
+			}else{//teach
+				EXEC SQL DELETE FROM enrollment
+				WHERE cnum=:cnum,term=:term,section=:section;
+				EXEC SQL DELETE FROM schedule
+				WHERE cnum=:cnum,term=:term,section=:section,day=:day,time=:time;
+				EXEC SQL DELETE FROM class
+				WHERE pnum=:SIN,cnum=:cnum,term=term,section=section;
+			}
+	}
+}
+else if(strcmp(cnum,c2)!=0 && cnum[0]==c2[0] && cnum[1]==c2[1]){//2. same department, lower level class precedence
+	if(cnum[2]<c2[2]){
+		printf("%s (%i) deleted",c2,s2);
+	}else if(cnum[2]>c2[2]){
+		printf("%s (%i) deleted",cnum,section);
+	}
+}
+else if(strcmp(cnum,c2)==0){//3. same class, lower section preferred
+d=1;
+	if(section<s2){
+		printf("%s (%i) deleted",c2,s2);
+	}else if(section>s2){
+		printf("%s (%i) deleted",cnum,section);
+	}
+}
+
+else if(cnum[0] != c2[0]){//4. diff department
+	printf("cannot be resolved");
+}else if(cnum==c2 && section==s2 && room != r2){//4. diff room
+	printf("cannot be resolved");
+}else{
+	printf("none-cannot be resolved");
+}
+printf("\n");
+
+};	
+
+end:
+   EXEC SQL CLOSE conflicts;
+   EXEC SQL COMMIT;
+   EXEC SQL CONNECT RESET;
+   exit(0);
+
+
+error:
+   check_error("My error",&sqlca);
+   EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+   EXEC SQL ROLLBACK;
+   EXEC SQL CONNECT reset;
+   exit(1);
+}
+

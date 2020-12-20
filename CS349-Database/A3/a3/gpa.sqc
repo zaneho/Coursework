@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+//#include "util.h"
+
+
+EXEC SQL INCLUDE SQLCA; 
+
+EXEC SQL BEGIN DECLARE SECTION;
+   char db[6] = "cs348";
+   char SIN[30];
+
+   char term[3],name[30];
+   double GPA, CGPA;
+   short ind,ind2;
+EXEC SQL END DECLARE SECTION;
+
+int main(int argc, char *argv[]) {
+   if (argc!=2) {
+      printf("Usage: sqc <pattern>\n");
+      exit(1);
+   };
+
+
+   EXEC SQL WHENEVER SQLERROR  GO TO error;
+
+   EXEC SQL CONNECT TO :db;
+
+   strncpy(SIN,argv[1],20);
+
+   EXEC SQL Select sname INTO :name INDICATOR :ind
+		FROM student
+		WHERE snum=:SIN;
+   
+  EXEC SQL 
+	SELECT round(sum(GPA)/count(term),1) as CGPA INTO :CGPA INDICATOR :ind2
+	FROM 
+	(SELECT q1.term, q1.sum, q2.count, round(q1.sum/q2.count,1) as GPA 
+		FROM 
+		(SELECT term, CAST(sum(grade) AS decimal) as sum FROM MARK 
+		WHERE snum=:SIN
+		GROUP BY term) as q1 
+	INNER JOIN 
+		(SELECT term, CAST(count(snum) AS decimal) as count FROM MARK 
+		WHERE snum=:SIN
+		GROUP BY term) as q2 
+	ON q1.term=q2.term 
+	ORDER BY substr(term,2,2), 
+		CASE substr(term,1,1) 
+			WHEN 'W' THEN 1 
+			WHEN 'S' THEN 2 
+			WHEN 'F' THEN 3 
+	END );
+
+if(ind>=0 && ind2>=0){
+   printf("GPA for student \"%s\" (%s) is %.1f\n",name,SIN,CGPA);
+
+   EXEC SQL DECLARE gpa CURSOR FOR 
+	SELECT q1.term, round(q1.sum/q2.count,1) as GPA 
+	FROM 
+		(SELECT term, CAST(sum(grade) AS decimal) as sum FROM MARK 
+		WHERE snum=:SIN
+		GROUP BY term) as q1 
+	INNER JOIN 
+		(SELECT term, CAST(count(snum) AS decimal) as count FROM MARK 
+		WHERE snum=:SIN
+		GROUP BY term) as q2 
+	ON q1.term=q2.term 
+	ORDER BY substr(term,2,2), 
+		CASE substr(term,1,1) 
+			WHEN 'W' THEN 1 
+			WHEN 'S' THEN 2 
+			WHEN 'F' THEN 3 
+		END;
+
+   EXEC SQL OPEN gpa;
+   EXEC SQL WHENEVER NOT FOUND GO TO end;
+   for (;;) {
+     EXEC SQL FETCH gpa INTO :term, :GPA;
+     printf("%s %.1f\n",term,GPA);
+     };
+
+   EXEC SQL CLOSE gpa;
+}else{
+	printf("User (%s) not found.\n", SIN);
+}
+
+end:
+
+
+   EXEC SQL COMMIT;
+   EXEC SQL CONNECT RESET;
+   exit(0);
+
+error:
+  // check_error("My error",&sqlca);
+   EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+   EXEC SQL ROLLBACK;
+   EXEC SQL CONNECT reset;
+   exit(1);
+}

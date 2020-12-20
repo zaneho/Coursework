@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1540813320 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk10_stacks&q\assq5_lineeditor\main.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+
+1541654276 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk11_stack&queue\assq5_lineeditor\main.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+

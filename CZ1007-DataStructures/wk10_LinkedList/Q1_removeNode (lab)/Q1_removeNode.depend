@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1540366592 source:j:\cz1007 data structure lab\wk10_linkedlist\q1_removenode\main.c
+	<stdio.h>
+	<stdlib.h>
+

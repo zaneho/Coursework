@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+//#include "util.h"
+
+
+EXEC SQL INCLUDE SQLCA; 
+
+EXEC SQL BEGIN DECLARE SECTION;
+   char db[6] = "cs348";
+   char  SIN[20];
+   char cnum[5],cname[50],term[3],day[10],room[7], time[5],name[30];
+   int section;
+
+EXEC SQL END DECLARE SECTION;
+
+int main(int argc, char *argv[]) {
+   if (argc<2) {
+      printf("Usage: schedule <pattern>\n");
+      exit(1);
+   };
+
+   EXEC SQL WHENEVER SQLERROR  GO TO error;
+
+   EXEC SQL CONNECT TO :db;
+
+int k=1;
+for(k=1;k<argc;k++){
+	int i=0;
+
+   strncpy(SIN,argv[k],20);
+
+   EXEC SQL DECLARE schedule CURSOR FOR 
+
+SELECT q3.cnum, q3.cname, q3.term, q3.section, s.day, s.time, s.room, q3.name 
+FROM schedule as s,
+	(SELECT q2.cnum, c.cname, q2.term, q2.section, q2.name FROM 
+	(SELECT q1.cnum, q1.term, q1.section, q1.name FROM 
+		((SELECT e.cnum, e.term, e.section, s.sname as name from ENROLLMENT e, STUDENT s WHERE e.SNUM = :SIN AND s.snum=e.snum) 
+		UNION 
+		(SELECT c.cnum, c.term, c.section, p.pname as name from CLASS c, PROFESSOR p WHERE c.PNUM = :SIN AND p.pnum=c.pnum)) as q1 
+	WHERE NOT EXISTS 
+	(SELECT m.cnum, m.term, m.section FROM MARK as m 
+	WHERE q1.cnum=m.cnum AND q1.term=m.term AND q1.section=m.section)) as q2, course as c 
+WHERE c.cnum=q2.cnum) as q3 
+WHERE q3.cnum=s.cnum AND q3.section=s.section AND q3.term=s.term
+ORDER BY 
+	CASE s.day
+		WHEN 'MONDAY' THEN 1
+		WHEN 'TUESDAY' THEN 2
+		WHEN 'WEDNESDAY' THEN 3
+		WHEN 'THURSDAY' THEN 4
+		WHEN 'FRIDAY' THEN 5
+		WHEN 'SATURDAY' THEN 6
+		WHEN 'SUNDAY' THEN 7
+	END, s.time;
+
+   EXEC SQL OPEN schedule;
+   EXEC SQL WHENEVER NOT FOUND GO TO end;
+
+
+   EXEC SQL FETCH schedule INTO :cnum,:cname, :term, :section, :day, :time, :room, :name;
+i=1;
+   printf("Schedule for \"%s\" (%s) and term <%s>\n", name,SIN,term );
+   printf("----\n");
+   printf("%s: \t \"%s\" \t (%s) \t  %i \t %s \t  %s\n", day,cname,cnum,section,time,room);
+
+   for (;;) {
+     EXEC SQL FETCH schedule INTO :cnum, :cname, :term, :section, :day, :time, :room, :name;
+     printf("%s: \t \"%s\" \t (%s) \t  %i \t %s \t  %s\n", day,cname,cnum,section,time,room);
+     };
+	
+	end:
+		if(i==0){
+			printf("Schedule for (%s) does not exist.\n", SIN);
+		}
+		printf("----\n");
+		EXEC SQL CLOSE schedule;
+	};
+
+//   EXEC SQL CLOSE schedule;
+   EXEC SQL COMMIT;
+   EXEC SQL CONNECT RESET;
+   exit(0);
+
+
+error:
+//   check_error("My error",&sqlca);
+   EXEC SQL WHENEVER SQLERROR CONTINUE;
+
+   EXEC SQL ROLLBACK;
+   EXEC SQL CONNECT reset;
+   exit(1);
+
+}

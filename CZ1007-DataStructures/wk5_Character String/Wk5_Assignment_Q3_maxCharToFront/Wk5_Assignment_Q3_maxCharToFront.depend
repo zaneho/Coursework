@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1536925644 source:c:\users\zane_\documents\cz1007 data structures\lab & tut\codeblockfile\wk5_character string\wk5_assignment_q3_maxchartofront\main.c
+	<stdio.h>
+	<string.h>
+
